@@ -12,8 +12,9 @@ import Logo from "../../assets/logo.png";
 import CustomInput from "../components/CustomInput";
 import { SliderBox } from "react-native-image-slider-box";
 import CustomButton from "../components/CustomButton";
+import {Input} from 'native-base'
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const { height } = useWindowDimensions();
   const images = [
     require("../../assets/images/image1.png"),
@@ -32,14 +33,13 @@ const HomeScreen = () => {
       </View>
       <ScrollView>
         <View style={{ flex: 1, alignItems: "center" }}>
-          <CustomInput placeholder="אימייל" />
-          <CustomInput />
+          <Input width='50%'/>
           <SliderBox
             images={images}
             autoplay={true}
             imageComponentStyle={{ borderRadius: 10 }}
           />
-          <CustomButton text='לחץ כאן להתחברות או הרשמה'/>
+          <CustomButton onPress={() => navigation.navigate('Sign up')} text='לחץ כאן להתחברות או הרשמה'/>
         </View>
       </ScrollView>
     </View>
