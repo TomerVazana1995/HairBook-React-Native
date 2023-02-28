@@ -8,7 +8,6 @@ import {Input} from 'native-base';
 const SignUpScreen = () => {
   return (
     <View style={styles.wraper}>
-      <Header text="פתיחת משתמש" />
       <View style={styles.container}>
         <FontAwesome name='user-circle-o' size='100%'/>
         <Input margin={5} textAlign='center' size='md' width='70%' placeholder="שם פרטי"/>

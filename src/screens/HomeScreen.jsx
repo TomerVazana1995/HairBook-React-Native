@@ -12,9 +12,10 @@ import Logo from "../../assets/logo.png";
 import CustomInput from "../components/CustomInput";
 import { SliderBox } from "react-native-image-slider-box";
 import CustomButton from "../components/CustomButton";
-import {Input} from 'native-base'
+import { Input } from "native-base";
+import Footer from "../components/Footer";
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = ({ navigation }) => {
   const { height } = useWindowDimensions();
   const images = [
     require("../../assets/images/image1.png"),
@@ -23,25 +24,25 @@ const HomeScreen = ({navigation}) => {
   ];
 
   return (
-    <View style={{ backgroundColor: "white", flex: 1 }}>
-      <View style={[styles.header_container, { height: height * 0.2 }]}>
-        <Image
-          style={[styles.logo, { height: height * 0.3 }]}
-          source={Logo}
-          resizeMode="contain"
-        />
-      </View>
+    <View
+      style={{ backgroundColor: "white", flex: 1, flexDirection: "column" }}
+    >
       <ScrollView>
         <View style={{ flex: 1, alignItems: "center" }}>
-          <Input width='50%'/>
           <SliderBox
             images={images}
             autoplay={true}
             imageComponentStyle={{ borderRadius: 10 }}
           />
-          <CustomButton onPress={() => navigation.navigate('Sign up')} text='לחץ כאן להתחברות או הרשמה'/>
+          <CustomButton
+            onPress={() => navigation.navigate("Sign up")}
+            text="לחץ כאן להתחברות או הרשמה"
+          />
         </View>
       </ScrollView>
+      <View style={styles.footer}>
+        <Footer />
+      </View>
     </View>
   );
 };
@@ -62,6 +63,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     maxHeight: 300,
     maxWidth: 200,
+  },
+  footer: {
+    justifyContent: "flex-end",
+    flex: 1,
   },
 });
 
