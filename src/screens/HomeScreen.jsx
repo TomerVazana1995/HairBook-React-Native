@@ -1,18 +1,12 @@
 import {
   View,
-  Text,
   StyleSheet,
-  SafeAreaView,
-  Image,
   useWindowDimensions,
   ScrollView,
 } from "react-native";
 import React from "react";
-import Logo from "../../assets/logo.png";
-import CustomInput from "../components/CustomInput";
 import { SliderBox } from "react-native-image-slider-box";
 import CustomButton from "../components/CustomButton";
-import { Input } from "native-base";
 import Footer from "../components/Footer";
 
 const HomeScreen = ({ navigation }) => {

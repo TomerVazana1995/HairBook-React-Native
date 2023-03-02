@@ -1,51 +1,43 @@
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/HomeScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import LoginScreen from "../screens/LoginScreen";
-import { Ionicons } from '@expo/vector-icons'; 
+import { Ionicons } from "@expo/vector-icons";
 import HairBookLogo from "./HairBookLogo";
+import { createDrawerNavigator, DrawerToggleButton } from "@react-navigation/drawer";
+import { ArrowBackIcon } from "native-base";
+import BookingScreen from "../screens/BookingScreen";
 
+const AppNavigator = ({navigation}) => {
 
-const AppNavigator = () => {
-
-  const Stack = createNativeStackNavigator();
+  const Drawer = createDrawerNavigator();
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home" screenOptions={{
-        headerRight: () => (
-            <View>
-                <TouchableOpacity>
-                    <Ionicons name="md-menu" size={28} color="white"/>
-                </TouchableOpacity>
-            </View>
-        ),
+      <Drawer.Navigator initialRouteName="דף הבית" screenOptions={{
         headerTitle: (props) => <HairBookLogo {...props}/>,
         headerStyle: {
-            borderBottomLeftRadius: 50,
-            borderBottomRightRadius: 50,
-            backgroundColor: "#5C7FA9",
+          backgroundColor: "#5C7FA9",
+
         },
-        headerTintColor: "white"
+        headerTintColor: "white",   
+        drawerPosition: "right",
+        headerLeft: () => <ArrowBackIcon color="white" size={5} margin={3}/>,
+        headerRight: () => <DrawerToggleButton tintColor="white"/>  
+     
       }}>
-        <Stack.Screen name="Home" component={HomeScreen}/>
-        <Stack.Screen name="Login" component={LoginScreen}/>
-        <Stack.Screen name="Sign up" component={SignUpScreen}/>
-      </Stack.Navigator>
+        <Drawer.Screen name="דף הבית" component={HomeScreen} options={{drawerIcon: () => <Ionicons name="home"/> }}>
+        </Drawer.Screen>
+        <Drawer.Screen name="קביעת תור" component={BookingScreen}/>
+        <Drawer.Screen name="Sign up" component={SignUpScreen} options={{drawerItemStyle: {height: 0}}}/>
+        <Drawer.Screen name="Login" component={LoginScreen} options={{drawerItemStyle: { height: 0}}}/>
+      </Drawer.Navigator>
     </NavigationContainer>
+
+   
   );
 };
 
-const styles = StyleSheet.create({
-    logo: {
-        width: "70%",
-        alignSelf: "center",
-        maxHeight: 300,
-        maxWidth: 200,
-    }
-})
 
-export default AppNavigator
+export default AppNavigator;
