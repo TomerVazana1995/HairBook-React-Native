@@ -8,6 +8,7 @@ import HairBookLogo from "./HairBookLogo";
 import { createDrawerNavigator, DrawerToggleButton } from "@react-navigation/drawer";
 import { ArrowBackIcon } from "native-base";
 import BookingScreen from "../screens/BookingScreen";
+import SettingsScreen from "../screens/SettingsScreen";
 
 const AppNavigator = ({navigation}) => {
 
@@ -32,6 +33,7 @@ const AppNavigator = ({navigation}) => {
         <Drawer.Screen name="קביעת תור" component={BookingScreen}/>
         <Drawer.Screen name="Sign up" component={SignUpScreen} options={{drawerItemStyle: {height: 0}}}/>
         <Drawer.Screen name="Login" component={LoginScreen} options={{drawerItemStyle: { height: 0}}}/>
+        <Drawer.Screen name="הגדרות" component={SettingsScreen}/>
       </Drawer.Navigator>
     </NavigationContainer>
 
