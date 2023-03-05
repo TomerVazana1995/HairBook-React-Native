@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   text: {
-    color: "white",
+    color: "#fff",
     fontWeight: "bold",
     padding: "3%",
   },
@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
   },
   container_TERTIARY: {},
   text_TERTIARY: {
-    fontWeight: "noraml",
-    color: "black",
+    fontWeight: "normal",
+    color: "#000",
   },
 });
 

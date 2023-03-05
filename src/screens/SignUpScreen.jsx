@@ -80,7 +80,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   text: {
-    fontWeight: "bold",
     fontSize: 25,
   },
 });

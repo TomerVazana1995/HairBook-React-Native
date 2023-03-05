@@ -1,5 +1,5 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import HomeScreen from "../screens/HomeScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import LoginScreen from "../screens/LoginScreen";
@@ -9,14 +9,25 @@ import { createDrawerNavigator, DrawerToggleButton } from "@react-navigation/dra
 import { ArrowBackIcon } from "native-base";
 import BookingScreen from "../screens/BookingScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import MapComponent from "./MapComponent";
+import { Pressable } from "react-native";
 
-const AppNavigator = ({navigation}) => {
+const AppNavigator = () => {
 
   const Drawer = createDrawerNavigator();
 
+  const HeaderBackButton = () => {
+    const navigation = useNavigation()
+    return (
+      <Pressable onPress={() => navigation.goBack()}>
+        <ArrowBackIcon color="white" />
+      </Pressable>
+    );
+  };
+
   return (
     <NavigationContainer>
-      <Drawer.Navigator initialRouteName="דף הבית" screenOptions={{
+      <Drawer.Navigator initialRouteName="דף הבית" screenOptions={({navigation}) => ({
         headerTitle: (props) => <HairBookLogo {...props}/>,
         headerStyle: {
           backgroundColor: "#5C7FA9",
@@ -24,16 +35,15 @@ const AppNavigator = ({navigation}) => {
         },
         headerTintColor: "white",   
         drawerPosition: "right",
-        headerLeft: () => <ArrowBackIcon color="white" size={5} margin={3}/>,
-        headerRight: () => <DrawerToggleButton tintColor="white"/>  
-     
-      }}>
-        <Drawer.Screen name="דף הבית" component={HomeScreen} options={{drawerIcon: () => <Ionicons name="home"/> }}>
-        </Drawer.Screen>
+        headerRight: () => <DrawerToggleButton tintColor="white"/>,
+        headerLeft: () => navigation.canGoBack() ? <HeaderBackButton/> : null
+})}>
+        <Drawer.Screen name="דף הבית" component={HomeScreen} options={{drawerIcon: () => <Ionicons name="home"/> }}/>
         <Drawer.Screen name="קביעת תור" component={BookingScreen}/>
         <Drawer.Screen name="Sign up" component={SignUpScreen} options={{drawerItemStyle: {height: 0}}}/>
         <Drawer.Screen name="Login" component={LoginScreen} options={{drawerItemStyle: { height: 0}}}/>
         <Drawer.Screen name="הגדרות" component={SettingsScreen}/>
+        <Drawer.Screen name="map" component={MapComponent} />
       </Drawer.Navigator>
     </NavigationContainer>
 

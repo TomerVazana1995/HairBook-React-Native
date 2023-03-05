@@ -4,8 +4,7 @@ import {
   useWindowDimensions,
   ScrollView,
 } from "react-native";
-import React, {useState} from "react";
-import { SliderBox } from "react-native-image-slider-box";
+import React, { useState } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import CustomCarusel from "../components/CustomCarusel";
@@ -30,21 +29,29 @@ const HomeScreen = ({ navigation }) => {
     <View
       style={{ backgroundColor: "white", flex: 1, flexDirection: "column" }}
     >
-
-        <View style={{ flex: 1, alignItems: "center" }}>
-            <View style={{flexDirection: "row", margin: 10}}>
-              <Button colorScheme="black" variant="outline" style={{borderRadius: 15, marginHorizontal: 10}}> לחץ לניווט</Button>
-              <Button colorScheme="black" variant="outline" style={{borderRadius: 15, marginHorizontal: 10}}>כתובת ויצירת קשר</Button>
-            </View>
-              
-          <CustomCarusel data={data} /> 
-        
-          <CustomButton
-            onPress={() => navigation.navigate("Sign up")}
-            text="לחץ כאן להתחברות או הרשמה"
-          />
+      <View style={{ flex: 1, alignItems: "center" }}>
+        <View style={{ flexDirection: "row", margin: 10 }}>
+          <Button
+            variant="outline"
+            style={{ borderRadius: 15, marginHorizontal: 10 }}
+            onPress={() => setIsMapModalVisible(true)}
+          >
+            לחץ לניווט
+          </Button>
+          <Button
+            variant="outline"
+            style={{ borderRadius: 15, marginHorizontal: 10 }}
+          >
+            כתובת ויצירת קשר
+          </Button>
         </View>
-   
+        <CustomCarusel data={data} />
+        <CustomButton
+          onPress={() => navigation.navigate("Sign up")}
+          text="לחץ כאן להתחברות או הרשמה"
+        />
+      </View>
+
       <View style={styles.footer}>
         <Footer />
       </View>
@@ -74,8 +81,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   button: {
-    margin: 10
-  }
+    margin: 10,
+  },
 });
 
 export default HomeScreen;
