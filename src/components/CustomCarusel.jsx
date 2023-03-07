@@ -1,7 +1,5 @@
 import {
   View,
-  Text,
-  ScrollView,
   Image,
   StyleSheet,
   useWindowDimensions,
@@ -12,7 +10,6 @@ import Animated, {
   useAnimatedStyle,
   useAnimatedScrollHandler,
   interpolate,
-  event,
 } from "react-native-reanimated";
 
 const CustomCarusel = ({ data }) => {
@@ -70,6 +67,7 @@ const styles = StyleSheet.create({
   imageContainer: {
     borderRadius: 34,
     overflow: "hidden",
+    margin: 10
   },
   image: {
     width: "100%",

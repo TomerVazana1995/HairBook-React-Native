@@ -11,6 +11,7 @@ import BookingScreen from "../screens/BookingScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import MapComponent from "./MapComponent";
 import { Pressable } from "react-native";
+import ShopScreen from "../screens/ShopScreen";
 
 const AppNavigator = () => {
 
@@ -31,7 +32,6 @@ const AppNavigator = () => {
         headerTitle: (props) => <HairBookLogo {...props}/>,
         headerStyle: {
           backgroundColor: "#5C7FA9",
-
         },
         headerTintColor: "white",   
         drawerPosition: "right",
@@ -40,10 +40,11 @@ const AppNavigator = () => {
 })}>
         <Drawer.Screen name="דף הבית" component={HomeScreen} options={{drawerIcon: () => <Ionicons name="home"/> }}/>
         <Drawer.Screen name="קביעת תור" component={BookingScreen}/>
+        <Drawer.Screen name="הגדרות" component={SettingsScreen}/>
+        <Drawer.Screen name="map" component={MapComponent}/>
+        <Drawer.Screen name="חנות מוצרים" component={ShopScreen}/>
         <Drawer.Screen name="Sign up" component={SignUpScreen} options={{drawerItemStyle: {height: 0}}}/>
         <Drawer.Screen name="Login" component={LoginScreen} options={{drawerItemStyle: { height: 0}}}/>
-        <Drawer.Screen name="הגדרות" component={SettingsScreen}/>
-        <Drawer.Screen name="map" component={MapComponent} />
       </Drawer.Navigator>
     </NavigationContainer>
 

@@ -34,7 +34,7 @@ const HomeScreen = ({ navigation }) => {
           <Button
             variant="outline"
             style={{ borderRadius: 15, marginHorizontal: 10 }}
-            onPress={() => setIsMapModalVisible(true)}
+            onPress={() => {setIsMapModalVisible(true), navigation.navigate('map')}}
           >
             לחץ לניווט
           </Button>
@@ -46,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
           </Button>
         </View>
         <CustomCarusel data={data} />
-        <CustomButton
+           <CustomButton
           onPress={() => navigation.navigate("Sign up")}
           text="לחץ כאן להתחברות או הרשמה"
         />

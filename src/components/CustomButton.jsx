@@ -26,7 +26,7 @@ const CustomButton = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 10,
+    borderRadius: 10
   },
   text: {
     color: "#fff",
