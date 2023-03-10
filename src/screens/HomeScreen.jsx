@@ -8,14 +8,13 @@ import React, { useState } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import CustomCarusel from "../components/CustomCarusel";
-import { Button, Modal } from "native-base";
+import { Button, Modal, Text } from "native-base";
 import axios from "axios";
 
 const HomeScreen = ({ navigation }) => {
 
   const baseUrl = 'http://192.168.1.106/api';
 
-  const [isMapModalVisible, setIsMapModalVisible] = useState(false);
   const { height } = useWindowDimensions();
   const data = [
     {
@@ -35,16 +34,11 @@ const HomeScreen = ({ navigation }) => {
     >
       <View style={{ flex: 1, alignItems: "center" }}>
         <View style={{ flexDirection: "row", margin: 10 }}>
+          
           <Button
             variant="outline"
             style={{ borderRadius: 15, marginHorizontal: 10 }}
-            onPress={() => {setIsMapModalVisible(true), navigation.navigate('map')}}
-          >
-            לחץ לניווט
-          </Button>
-          <Button
-            variant="outline"
-            style={{ borderRadius: 15, marginHorizontal: 10 }}
+            onPress={() => {navigation.navigate("Business details")}}
           >
             כתובת ויצירת קשר
           </Button>
