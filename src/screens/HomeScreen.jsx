@@ -9,8 +9,12 @@ import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import CustomCarusel from "../components/CustomCarusel";
 import { Button, Modal } from "native-base";
+import axios from "axios";
 
 const HomeScreen = ({ navigation }) => {
+
+  const baseUrl = 'http://192.168.1.106/api';
+
   const [isMapModalVisible, setIsMapModalVisible] = useState(false);
   const { height } = useWindowDimensions();
   const data = [
