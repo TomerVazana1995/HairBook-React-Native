@@ -7,7 +7,7 @@ const BookingScreen = () => {
     <View style={{flex: 1, alignItems: "center", flexDirection: "column"}}>
       <Text style={styles.title}>הזמנת תור</Text>
       <View>
-        <Card></Card>
+        <Text>בחר סוג טיפול</Text>
       </View>
     </View>
   )

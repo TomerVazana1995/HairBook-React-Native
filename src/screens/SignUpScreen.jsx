@@ -60,7 +60,6 @@ const SignUpScreen = ({ navigation }) => {
 
   return (
     <ScrollView>
-
     <View style={styles.wraper}>
       <View style={styles.container}>
         <PickImageComponent
@@ -133,7 +132,7 @@ const SignUpScreen = ({ navigation }) => {
                   selectedGender === "Male" && { color: "#5D9FED" },
                 ]}
               >
-                Male
+                זכר
               </Text>
             </View>
           </TouchableOpacity>
@@ -163,7 +162,7 @@ const SignUpScreen = ({ navigation }) => {
                   selectedGender === "Female" && { color: "#D663C3" },
                 ]}
               >
-                Female
+                נקבה
               </Text>
             </View>
           </TouchableOpacity>
