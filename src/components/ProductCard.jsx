@@ -1,13 +1,21 @@
 import { View, Text, Image, StyleSheet, useWindowDimensions, TouchableOpacity } from "react-native";
-import React from "react";
-import { Box, Container, Heading, Center } from "native-base";
+import React, {useState} from "react";
 import Picture from "../../src/images/product1.jpg";
 import { AntDesign } from '@expo/vector-icons';
 
 const ProductCard = ({image}) => {
 
+  const [isLiked, setIsLiked] = useState(false);
+
   return (
   <View style={styles.root}>
+    <TouchableOpacity onPress={() => setIsLiked(prev => !prev)}>
+       <View style={{alignItems: "flex-end", paddingRight: 10, paddingTop: 10}}>
+      { isLiked ?
+        <AntDesign name="heart" size={15} color="red"/> : <AntDesign name="hearto" size={15}/> 
+      }
+    </View>
+    </TouchableOpacity>
     <View style={{backgroundColor: "transparent", alignItems: "center", paddingVertical: 20}}>
       <TouchableOpacity>
            <Image style={styles.image} source={image} resizeMode="contain"/>
@@ -30,13 +38,12 @@ const ProductCard = ({image}) => {
 
 const styles = StyleSheet.create({
     root: {
-        alignItems: "center",
         backgroundColor: "white",
         margin: 10,
-        shadowOffset: {width: 10, height: 10},
+        shadowOffset: {width: 5, height: 5},
         shadowOpacity: 1,
         shadowColor: "grey",
-        shadowRadius: 10,
+        shadowRadius: 5,
         borderRadius: 20,
     },
     image: {

@@ -1,32 +1,57 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
-import { FontAwesome } from "@expo/vector-icons";
+import React, { useContext, useState } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import PickImageComponent from "../components/PickImageComponent";
 import * as ImagePicker from "expo-image-picker";
-import { Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Datepicker, Input, Icon } from "@ui-kitten/components/ui";
+import {
+  Datepicker,
+  Input,
+  Icon,
+  Popover,
+  Layout,
+} from "@ui-kitten/components/ui";
 import axios from "axios";
 import { ScrollView } from "react-native-gesture-handler";
+import * as SMS from "expo-sms";
+import { UserContext } from "../context/context";
 
 const SignUpScreen = ({ navigation }) => {
   const baseUrl = "http://192.168.1.106/api";
 
-  const [user, setUser] = useState({
-    firstName: "",
-    lastName: "",
-    phoneNum: "",
-    image: null,
-    birthDate: Date(),
-    gender: "",
-  });
+  const userContext = useContext(UserContext);
+
+  // const [user, setUser] = useState({
+  //   firstName: "",
+  //   lastName: "",
+  //   phoneNum: "",
+  //   image: null,
+  //   birthDate: "",
+  //   gender: "",
+  // });
   const [isIcon, setIsIcon] = useState(true);
   const [isImage, setIsImage] = useState(false);
-  const [image, setImage] = useState(null);
-
+  const [code, setCode] = useState("");
+  const [visible, setVisible] = useState(false);
   const [selectedGender, setSelectedGender] = useState("");
+
+  const renderToggleInput = () => (
+    <Input
+      value={userContext.user.phoneNum}
+      placeholder="טלפון - נייד"
+      textAlign="right"
+      style={{ margin: 10 }}
+      onChangeText={(text) =>
+        userContext.setUser({ ...userContext.user, phoneNum: text })
+      }
+      accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
+      onFocus={() => setVisible(true)}
+      onBlur={() => setVisible(false)}
+    />
+  );
+
+  const checkPhoneInputIsValid = () => {};
 
   //To open phone gallery when user icon is pressed
   const pickImage = async () => {
@@ -39,8 +64,9 @@ const SignUpScreen = ({ navigation }) => {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      userContext.setUser({ ...userContext.user, image: result.assets[0].uri });
       setIsIcon(false);
+      setIsImage(true);
     }
   };
 
@@ -48,7 +74,7 @@ const SignUpScreen = ({ navigation }) => {
   const CreateUser = () => {
     axios
       .post(`${baseUrl}/Clients`, {
-        user: user,
+        user: userContext.user,
       })
       .then(function (response) {
         console.log(response);
@@ -58,127 +84,167 @@ const SignUpScreen = ({ navigation }) => {
       });
   };
 
-  return (
-    <ScrollView>
-    <View style={styles.wraper}>
-      <View style={styles.container}>
-        <PickImageComponent
-          isIcon={isIcon}
-          isImage={isImage}
-          onPress={pickImage}
-        />
-        {image && (
-          <View style={{ height: 100, width: 100, borderRadius: 50 }}>
-            <Image style={styles.image} source={image} resizeMode="contain" />
-          </View>
-        )}
-        <View style={{width: "70%", marginVertical: 15}}>
-          <Input
-            value={user.firstName}
-            placeholder="שם פרטי"
-            textAlign="right"
-            style={{ margin: 10 }}
-            onChangeText={(text) => setUser({ ...user, firstName: text })}
-            accessoryLeft={(props) => <Icon {...props} name="person" />}
-          />
-          <Input
-            value={user.lastName}
-            placeholder="שם משפחה"
-            textAlign="right"
-            style={{ margin: 10 }}
-            onChangeText={(text) => setUser({ ...user, lastName: text })}
-            accessoryLeft={(props) => <Icon {...props} name="people" />}
-          />
-          <Input
-            value={user.phoneNum}
-            placeholder="טלפון - נייד"
-            textAlign="right"
-            style={{ margin: 10 }}
-            onChangeText={(text) => setUser({ ...user, phoneNum: text })}
-            accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
-          />
-          <Datepicker
-            placeholder="תאריך לידה"
-            style={{ margin: 10 }}
-            onSelect={(text) => setUser({ ...user, birthDate: text })}
-            accessoryLeft={(props) => <Icon {...props} name="calendar" />}
-          />
-        </View>
+  const sendSMS = async () => {
+    // Generate a random 4-digit code
+    const code = Math.floor(Math.random() * 9000) + 1000;
 
-        <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 15}}>
-          <TouchableOpacity
-            onPress={() => {
-              setSelectedGender("Male"),
-                setUser({ ...user, gender: selectedGender });
+    // Send the SMS message with the code
+    const isAvailable = await SMS.isAvailableAsync();
+    if (isAvailable) {
+      const { result } = await SMS.sendSMSAsync(
+        "", // phone numbers to send the message to (can be an array)
+        `Your authentication code is ${code}` // message to send
+      );
+      console.log(result);
+      if (result === "sent") {
+        setCode(code);
+      }
+    }
+  };
+
+  return (
+
+      <View style={styles.wraper}>
+        <View style={styles.container}>
+          <PickImageComponent
+            isIcon={isIcon}
+            isImage={isImage}
+            onPress={pickImage}
+            image={userContext.user.image}
+          />
+          <View style={{ width: "70%", marginVertical: 15 }}>
+            <Input
+              value={userContext.user.firstName}
+              placeholder="שם פרטי"
+              textAlign="right"
+              style={{ margin: 10 }}
+              onChangeText={(text) =>
+                userContext.setUser({ ...userContext.user, firstName: text })
+              }
+              accessoryLeft={(props) => <Icon {...props} name="person" />}
+            />
+            <Input
+              value={userContext.user.lastName}
+              placeholder="שם משפחה"
+              textAlign="right"
+              style={{ margin: 10 }}
+              onChangeText={(text) =>
+                userContext.setUser({ ...userContext.user, lastName: text })
+              }
+              accessoryLeft={(props) => <Icon {...props} name="people" />}
+            />
+            <Datepicker
+              placeholder="תאריך לידה"
+              style={{ margin: 10 }}
+              onSelect={(date) =>
+                userContext.setUser({ ...userContext.user, birthDate: date })
+              }
+              accessoryLeft={(props) => <Icon {...props} name="calendar" />}
+              date={userContext.user.birthDate}
+            />
+            <Popover
+              visible={visible}
+              anchor={renderToggleInput}
+              onBackdropPress={() => setVisible(false)}
+              placement="top"
+            >
+              <Layout style={styles.content}>
+                <Text>מספר לדוגמא: 055-5555555</Text>
+              </Layout>
+            </Popover>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginBottom: 15,
             }}
           >
-            <View
-              style={[
-                styles.card,
-                selectedGender === "Male" && {
-                  borderColor: "#5D9FED",
-                  backgroundColor: "#C4DCF8",
-                },
-              ]}
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedGender("זכר"),
+                  userContext.setUser({
+                    ...userContext.user,
+                    gender: selectedGender,
+                  }),
+                  console.log(userContext.user);
+              }}
             >
-              <Ionicons
-                name="man-outline"
-                size={50}
-                style={selectedGender === "Male" && { color: "#5D9FED" }}
-              />
-              <Text
+              <View
                 style={[
-                  styles.gender_text,
-                  selectedGender === "Male" && { color: "#5D9FED" },
+                  styles.card,
+                  selectedGender === "זכר" && {
+                    borderColor: "#5D9FED",
+                    backgroundColor: "#C4DCF8",
+                  },
                 ]}
               >
-                זכר
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
+                <Ionicons
+                  name="man-outline"
+                  size={50}
+                  style={selectedGender === "זכר" && { color: "#5D9FED" }}
+                />
+                <Text
+                  style={[
+                    styles.gender_text,
+                    selectedGender === "זכר" && { color: "#5D9FED" },
+                  ]}
+                >
+                  זכר
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedGender("נקבה"),
+                  userContext.setUser({
+                    ...userContext.user,
+                    gender: selectedGender,
+                  }),
+                  console.log(userContext.user);
+              }}
+            >
+              <View
+                style={[
+                  styles.card,
+                  selectedGender === "נקבה" && {
+                    borderColor: "#D663C3",
+                    backgroundColor: "#F5DEF7",
+                  },
+                ]}
+              >
+                <Ionicons
+                  name="woman-outline"
+                  size={50}
+                  style={selectedGender === "נקבה" && { color: "#D663C3" }}
+                />
+                <Text
+                  style={[
+                    styles.gender_text,
+                    selectedGender === "נקבה" && { color: "#D663C3" },
+                  ]}
+                >
+                  נקבה
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <CustomButton
+            text="שמור משתמש"
             onPress={() => {
-              setSelectedGender("Female"),
-                setUser({ ...user, gender: selectedGender });
+              CreateUser;
             }}
-          >
-            <View
-              style={[
-                styles.card,
-                selectedGender === "Female" && {
-                  borderColor: "#D663C3",
-                  backgroundColor: "#F5DEF7",
-                },
-              ]}
-            >
-              <Ionicons
-                name="woman-outline"
-                size={50}
-                style={selectedGender === "Female" && { color: "#D663C3" }}
-              />
-              <Text
-                style={[
-                  styles.gender_text,
-                  selectedGender === "Female" && { color: "#D663C3" },
-                ]}
-              >
-                נקבה
-              </Text>
-            </View>
-          </TouchableOpacity>
+          />
+          <CustomButton
+            type="TERTIARY"
+            text="יש משתמש קיים? לחץ כאן להתחברות"
+            onPress={() => navigation.navigate("Login")}
+          />
         </View>
-        <CustomButton text="שמור משתמש" onPress={CreateUser} />
-        <CustomButton
-          type="TERTIARY"
-          text="יש משתמש קיים? לחץ כאן להתחברות"
-          onPress={() => navigation.navigate("Login")}
-        />
+        <View style={{ justifyContent: "flex-end", flex: 1 }}>
+          <Footer />
+        </View>
       </View>
-      <View style={{ justifyContent: "flex-end", flex: 1 }}>
-        <Footer />
-      </View>
-    </View>
-    </ScrollView>
   );
 };
 
@@ -217,6 +283,12 @@ const styles = StyleSheet.create({
   },
   gender_text: {
     fontWeight: "bold",
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 4,
+    paddingVertical: 8,
   },
 });
 

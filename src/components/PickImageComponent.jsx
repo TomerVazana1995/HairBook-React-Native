@@ -2,8 +2,9 @@ import { View, Text, TouchableOpacity, Image } from "react-native";
 import React, {useState} from "react";
 import * as ImagePicker from "expo-image-picker";
 import { FontAwesome } from "@expo/vector-icons";
+import { Avatar } from "native-base";
 
-export default function PickImageComponent({isIcon, isImage, onPress}) {
+export default function PickImageComponent({isIcon, isImage, onPress, image}) {
 
   return (
     <View>
@@ -15,9 +16,8 @@ export default function PickImageComponent({isIcon, isImage, onPress}) {
         }
         {
             isImage &&
-            <View style={{height: 100, width: 100, borderRadius: 50}}>
-                <Image source={image}/>
-            </View>
+          
+                <Avatar source={{uri: image}} size="xl"/>
         }
       </TouchableOpacity>
     </View>

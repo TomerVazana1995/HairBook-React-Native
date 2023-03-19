@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
   saveUserBox: {
     flexDirection: 'row-reverse',
-    justifyContent: 'flex-end',
+    alignSelf: "flex-end",
     margin: 10
   },
   footer: {
