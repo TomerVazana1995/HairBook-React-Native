@@ -18,7 +18,7 @@ import * as SMS from "expo-sms";
 import { UserContext } from "../context/context";
 
 const SignUpScreen = ({ navigation }) => {
-  const baseUrl = "http://192.168.1.106/api";
+  const baseUrl = "http://192.168.1.220:7276/api";
 
   const userContext = useContext(UserContext);
 
@@ -36,6 +36,9 @@ const SignUpScreen = ({ navigation }) => {
   const [visible, setVisible] = useState(false);
   const [selectedGender, setSelectedGender] = useState("");
 
+  const min = new Date(1,1,1990);
+
+
   const renderToggleInput = () => (
     <Input
       value={userContext.user.phoneNum}
@@ -48,6 +51,7 @@ const SignUpScreen = ({ navigation }) => {
       accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
       onFocus={() => setVisible(true)}
       onBlur={() => setVisible(false)}
+      keyboardType="number-pad"
     />
   );
 
@@ -73,8 +77,8 @@ const SignUpScreen = ({ navigation }) => {
   //save the new user information in the database
   const CreateUser = () => {
     axios
-      .post(`${baseUrl}/Clients`, {
-        user: userContext.user,
+      .post(`${baseUrl}/Client`, {
+        user: userContext.user
       })
       .then(function (response) {
         console.log(response);
@@ -137,10 +141,11 @@ const SignUpScreen = ({ navigation }) => {
               placeholder="תאריך לידה"
               style={{ margin: 10 }}
               onSelect={(date) =>
-                userContext.setUser({ ...userContext.user, birthDate: date })
+                userContext.setUser({ ...userContext.user, birthDate: date})
               }
               accessoryLeft={(props) => <Icon {...props} name="calendar" />}
               date={userContext.user.birthDate}
+              min={min}
             />
             <Popover
               visible={visible}
@@ -231,9 +236,7 @@ const SignUpScreen = ({ navigation }) => {
           </View>
           <CustomButton
             text="שמור משתמש"
-            onPress={() => {
-              CreateUser;
-            }}
+            onPress={CreateUser}
           />
           <CustomButton
             type="TERTIARY"
