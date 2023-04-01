@@ -5,57 +5,47 @@ import Footer from "../components/Footer";
 import PickImageComponent from "../components/PickImageComponent";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  Datepicker,
-  Input,
-  Icon,
-  Popover,
-  Layout,
-} from "@ui-kitten/components/ui";
+import { Datepicker, Input, Icon } from "@ui-kitten/components/ui";
 import axios from "axios";
-import { ScrollView } from "react-native-gesture-handler";
 import * as SMS from "expo-sms";
 import { UserContext } from "../context/context";
+import { FormControl, ScrollView } from "native-base";
 
 const SignUpScreen = ({ navigation }) => {
-  const baseUrl = "http://192.168.1.220:7276/api";
+  const baseUrl = "https://proj.ruppin.ac.il/cgroup30/test1/api/Item";
 
   const userContext = useContext(UserContext);
 
-  // const [user, setUser] = useState({
-  //   firstName: "",
-  //   lastName: "",
-  //   phoneNum: "",
-  //   image: null,
-  //   birthDate: "",
-  //   gender: "",
-  // });
   const [isIcon, setIsIcon] = useState(true);
   const [isImage, setIsImage] = useState(false);
   const [code, setCode] = useState("");
   const [visible, setVisible] = useState(false);
   const [selectedGender, setSelectedGender] = useState("");
+  const [error, setError] = useState(false);
 
-  const min = new Date(1,1,1990);
+  const min = new Date(1, 1, 1990);
 
+  //formatting the phone number to xxx-xxxxxxx format
+  const handlePhoneNumFormat = (input) => {
+    const cleaned = ("" + input).replace(/\D/g, "");
+    const match = cleaned.match(/^(\d{0,3})(\d{0,7})(\d{0,})$/);
+    if (!match) {
+      return "";
+    }
+    const formatted =
+      match[1] +
+      (match[1] && match[2] ? "-" : "") +
+      match[2] +
+      (match[2] && match[3] ? "-" : "") +
+      match[3];
+    return formatted;
+  };
 
-  const renderToggleInput = () => (
-    <Input
-      value={userContext.user.phoneNum}
-      placeholder="טלפון - נייד"
-      textAlign="right"
-      style={{ margin: 10 }}
-      onChangeText={(text) =>
-        userContext.setUser({ ...userContext.user, phoneNum: text })
-      }
-      accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
-      onFocus={() => setVisible(true)}
-      onBlur={() => setVisible(false)}
-      keyboardType="number-pad"
-    />
-  );
-
-  const checkPhoneInputIsValid = () => {};
+  //save the formatted phone number of the user to save in the database
+  const handleChangeText = (input) => {
+    const formatted = handlePhoneNumFormat(input);
+    userContext.setUser({ ...userContext.user, phoneNum: formatted });
+  };
 
   //To open phone gallery when user icon is pressed
   const pickImage = async () => {
@@ -78,7 +68,7 @@ const SignUpScreen = ({ navigation }) => {
   const CreateUser = () => {
     axios
       .post(`${baseUrl}/Client`, {
-        user: userContext.user
+        user: userContext.user,
       })
       .then(function (response) {
         console.log(response);
@@ -107,8 +97,8 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   return (
-
-      <View style={styles.wraper}>
+    <View style={styles.wraper}>
+      <ScrollView style={{ backgroundColor: "white" }}>
         <View style={styles.container}>
           <PickImageComponent
             isIcon={isIcon}
@@ -117,46 +107,52 @@ const SignUpScreen = ({ navigation }) => {
             image={userContext.user.image}
           />
           <View style={{ width: "70%", marginVertical: 15 }}>
-            <Input
-              value={userContext.user.firstName}
-              placeholder="שם פרטי"
-              textAlign="right"
-              style={{ margin: 10 }}
-              onChangeText={(text) =>
-                userContext.setUser({ ...userContext.user, firstName: text })
-              }
-              accessoryLeft={(props) => <Icon {...props} name="person" />}
-            />
-            <Input
-              value={userContext.user.lastName}
-              placeholder="שם משפחה"
-              textAlign="right"
-              style={{ margin: 10 }}
-              onChangeText={(text) =>
-                userContext.setUser({ ...userContext.user, lastName: text })
-              }
-              accessoryLeft={(props) => <Icon {...props} name="people" />}
-            />
-            <Datepicker
-              placeholder="תאריך לידה"
-              style={{ margin: 10 }}
-              onSelect={(date) =>
-                userContext.setUser({ ...userContext.user, birthDate: date})
-              }
-              accessoryLeft={(props) => <Icon {...props} name="calendar" />}
-              date={userContext.user.birthDate}
-              min={min}
-            />
-            <Popover
-              visible={visible}
-              anchor={renderToggleInput}
-              onBackdropPress={() => setVisible(false)}
-              placement="top"
-            >
-              <Layout style={styles.content}>
-                <Text>מספר לדוגמא: 055-5555555</Text>
-              </Layout>
-            </Popover>
+            <FormControl>
+              <Input
+                value={userContext.user.firstName}
+                placeholder="שם פרטי"
+                textAlign="right"
+                style={{ marginVertical: 10 }}
+                onChangeText={(text) =>
+                  userContext.setUser({ ...userContext.user, firstName: text })
+                }
+                accessoryLeft={(props) => <Icon {...props} name="person" />}
+              />
+              <Input
+                value={userContext.user.lastName}
+                placeholder="שם משפחה"
+                textAlign="right"
+                style={{ marginVertical: 10 }}
+                onChangeText={(text) =>
+                  userContext.setUser({ ...userContext.user, lastName: text })
+                }
+                accessoryLeft={(props) => <Icon {...props} name="people" />}
+              />
+              <Datepicker
+                placeholder="תאריך לידה"
+                style={{ marginVertical: 10 }}
+                onSelect={(date) =>
+                  userContext.setUser({ ...userContext.user, birthDate: date })
+                }
+                accessoryLeft={(props) => <Icon {...props} name="calendar" />}
+                date={userContext.user.birthDate}
+                min={min}
+              />
+              <Input
+                value={userContext.user.phoneNum}
+                placeholder="טלפון - נייד"
+                textAlign="right"
+                style={{marginTop: 10}}
+                onChangeText={handleChangeText}
+                accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
+                onFocus={() => setVisible(true)}
+                onBlur={() => setVisible(false)}
+                keyboardType="number-pad"
+              />
+              <FormControl.HelperText alignSelf="flex-end">
+                *נא הזן מספר טלפון בעל 10 ספרות
+              </FormControl.HelperText>
+            </FormControl>
           </View>
           <View
             style={{
@@ -234,20 +230,18 @@ const SignUpScreen = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           </View>
-          <CustomButton
-            text="שמור משתמש"
-            onPress={CreateUser}
-          />
+          <CustomButton text="שמור משתמש" onPress={CreateUser} />
           <CustomButton
             type="TERTIARY"
             text="יש משתמש קיים? לחץ כאן להתחברות"
             onPress={() => navigation.navigate("Login")}
           />
         </View>
-        <View style={{ justifyContent: "flex-end", flex: 1 }}>
-          <Footer />
-        </View>
+      </ScrollView>
+      <View style={{ justifyContent: "flex-end" }}>
+        <Footer />
       </View>
+    </View>
   );
 };
 

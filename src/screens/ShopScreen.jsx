@@ -24,11 +24,14 @@ const ShopScreen = () => {
           <View
             style={{
               flexDirection: "row",
-              backgroundColor: "#CDCDCD",
+              backgroundColor: "#E4E4E4",
               marginVertical: 10,
-              padding: 10,
-              width: "100%",
-              borderRadius: 10,
+              padding: 5,
+              width: "80%",
+              borderRadius: 15,
+              borderWidth: 2,
+              borderColor: "#CDCDCD",
+              justifyContent: "space-between",
             }}
           >
             <Ionicons name="search" color="rgb(120, 120, 120)" size={25} />
@@ -38,7 +41,8 @@ const ShopScreen = () => {
               style={{
                 color: "rgb(120, 120, 120)",
                 fontSize: 20,
-                marginLeft: 10
+                marginLeft: 10,
+                width: "80%"
               }}
             />
           </View>

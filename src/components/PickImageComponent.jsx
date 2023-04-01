@@ -1,24 +1,16 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
-import React, {useState} from "react";
-import * as ImagePicker from "expo-image-picker";
-import { FontAwesome } from "@expo/vector-icons";
+import { View, TouchableOpacity, Image } from "react-native";
+import React, {useContext} from "react";
+
 import { Avatar } from "native-base";
+import { UserContext } from "../context/context";
 
 export default function PickImageComponent({isIcon, isImage, onPress, image}) {
 
+  const userContext = useContext(UserContext);
   return (
     <View>
       <TouchableOpacity onPress={onPress}>
-        { isIcon &&
-          <View>
-            <FontAwesome name="user-circle-o" size={100} />
-          </View>
-        }
-        {
-            isImage &&
-          
-                <Avatar source={{uri: image}} size="xl"/>
-        }
+        <Avatar source={{uri: userContext.user.image}} size="2xl"/>
       </TouchableOpacity>
     </View>
   );
