@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     backgroundColor: "white",
-    marginVertical: 15
+    marginVertical: 15,
+    elevation: 15
   },
 });
 

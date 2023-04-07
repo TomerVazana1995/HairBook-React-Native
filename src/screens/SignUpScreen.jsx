@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView } from "react-native";
 import React, { useContext, useState } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
@@ -12,7 +12,7 @@ import { UserContext } from "../context/context";
 import { FormControl, ScrollView } from "native-base";
 
 const SignUpScreen = ({ navigation }) => {
-  const baseUrl = "https://proj.ruppin.ac.il/cgroup30/test1/api/Item";
+  const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
   const userContext = useContext(UserContext);
 
@@ -66,12 +66,17 @@ const SignUpScreen = ({ navigation }) => {
 
   //save the new user information in the database
   const CreateUser = () => {
-    axios
-      .post(`${baseUrl}/Client`, {
-        user: userContext.user,
+    axios.post(`${baseUrl}/Client`, {
+        firstName: userContext.user.firstName,
+        lastName: userContext.user.lastName,
+        phoneNum: userContext.user.phoneNum,
+        birthDate: userContext.user.birthDate,
+        image: userContext.user.image,
+        gender: userContext.user.gender,
       })
       .then(function (response) {
         console.log(response);
+        alert('user added');
       })
       .catch(function (error) {
         console.log(error);
@@ -108,17 +113,18 @@ const SignUpScreen = ({ navigation }) => {
           />
           <View style={{ width: "70%", marginVertical: 15 }}>
             <FormControl>
-              <Input
+              <KeyboardAvoidingView>        
+               <Input
                 value={userContext.user.firstName}
                 placeholder="שם פרטי"
                 textAlign="right"
                 style={{ marginVertical: 10 }}
                 onChangeText={(text) =>
                   userContext.setUser({ ...userContext.user, firstName: text })
-                }
-                accessoryLeft={(props) => <Icon {...props} name="person" />}
+                }   
               />
-              <Input
+              </KeyboardAvoidingView>
+             <Input
                 value={userContext.user.lastName}
                 placeholder="שם משפחה"
                 textAlign="right"
@@ -126,7 +132,7 @@ const SignUpScreen = ({ navigation }) => {
                 onChangeText={(text) =>
                   userContext.setUser({ ...userContext.user, lastName: text })
                 }
-                accessoryLeft={(props) => <Icon {...props} name="people" />}
+                // accessoryLeft={(props) => <Icon {...props} name="people" />}
               />
               <Datepicker
                 placeholder="תאריך לידה"
@@ -134,7 +140,7 @@ const SignUpScreen = ({ navigation }) => {
                 onSelect={(date) =>
                   userContext.setUser({ ...userContext.user, birthDate: date })
                 }
-                accessoryLeft={(props) => <Icon {...props} name="calendar" />}
+                // accessoryLeft={(props) => <Icon {...props} name="calendar" />}
                 date={userContext.user.birthDate}
                 min={min}
               />
@@ -142,17 +148,28 @@ const SignUpScreen = ({ navigation }) => {
                 value={userContext.user.phoneNum}
                 placeholder="טלפון - נייד"
                 textAlign="right"
-                style={{marginTop: 10}}
+                style={{ marginTop: 10 }}
                 onChangeText={handleChangeText}
-                accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
+                // accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
                 onFocus={() => setVisible(true)}
                 onBlur={() => setVisible(false)}
                 keyboardType="number-pad"
-              />
+              /> 
               <FormControl.HelperText alignSelf="flex-end">
                 *נא הזן מספר טלפון בעל 10 ספרות
               </FormControl.HelperText>
+            
             </FormControl>
+              {/* <OTPInputView
+              style={{width: '80%', height: 200}}
+                pinCount={4}
+                autoFocusOnLoad
+                codeInputFieldStyle={styles.underlineStyleBase}
+                codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                onCodeFilled={(code) => {
+                  console.log(`Code is ${code}, you are good to go!`);
+                }}
+              /> */}
           </View>
           <View
             style={{
@@ -238,9 +255,11 @@ const SignUpScreen = ({ navigation }) => {
           />
         </View>
       </ScrollView>
-      <View style={{ justifyContent: "flex-end" }}>
+      
+      {/* <View style={{ justifyContent: "flex-end" }}>
         <Footer />
-      </View>
+      </View> */}
+    
     </View>
   );
 };
@@ -286,6 +305,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 4,
     paddingVertical: 8,
+  },
+  underlineStyleBase: {
+    width: 30,
+    height: 45,
+    borderWidth: 0,
+    borderBottomWidth: 1,
+  },
+
+  underlineStyleHighLighted: {
+    borderColor: "#03DAC6",
   },
 });
 

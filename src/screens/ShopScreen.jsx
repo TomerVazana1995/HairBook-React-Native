@@ -50,6 +50,10 @@ const ShopScreen = () => {
             <View style={{flexDirection: "row", flexWrap: "wrap", justifyContent: "center"}}>
               <ProductCard image={picture1}/>
               <ProductCard image={picture2}/>
+              <ProductCard image={picture2}/>
+              <ProductCard image={picture2}/>
+              <ProductCard image={picture2}/>
+              <ProductCard image={picture2}/>
             </View>
           </ScrollView>
         </View>

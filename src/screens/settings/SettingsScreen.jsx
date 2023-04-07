@@ -5,11 +5,25 @@ import { Heading, Avatar } from "native-base";
 import CustomButton from "../../components/CustomButton";
 import SettingsOption from "../../components/SettingsOption";
 import { UserContext } from "../../context/context";
+import axios from "axios";
+import { Alert } from "react-native";
 
 const SettingsScreen = () => {
 
 const userContext = useContext(UserContext);
 const navigation = useNavigation();
+
+const logOut = () => {
+  Alert.alert('Alert Title', 'My Alert Msg', [
+    {
+      text: 'Cancel',
+      onPress: () => console.log('Cancel Pressed'),
+      style: 'cancel',
+    },
+    {text: 'OK', onPress: () => {  userContext.setUser({...userContext.user, phoneNum: ""})}},
+  ]);
+  }
+
 
   return (
     <View style={styles.root}>
@@ -36,7 +50,7 @@ const navigation = useNavigation();
         <Text style={{ color: "grey", fontWeight: "bold", fontSize: 20, paddingRight: 20 }}>אפשרויות</Text>
       </View>
       <SettingsOption icon="notifications" text="התראות" visible={true}/>
-      <SettingsOption icon="notifications" text="התנתק"/>
+      <SettingsOption icon="notifications" text="התנתק" onPress={logOut}/>
       <SettingsOption icon="notifications" text="מחק משתמש" color="red"/>
     </View>
   );

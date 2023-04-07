@@ -1,10 +1,15 @@
-const colors = {
-    black: "#000",
-    dark: `rgb(70,70,70)`,
-    yellow: `rgb(250,230,50)`,
-    gray: `rgb(120,120,120)`,
-    light: `rgb(240,240,240)`,
-    white: "#fff",
+import { extendTheme } from "native-base";
+
+const newColorTheme = {
+    brand: {
+      900: '#5B8DF6',
+      800: '#ffffff',
+      700: '#cccccc',
+    },
   };
 
-  export default colors;
+const Theme = extendTheme({
+  colors: newColorTheme,
+});
+
+  export default Theme;

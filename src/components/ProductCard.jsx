@@ -5,15 +5,40 @@ import {
   StyleSheet,
   useWindowDimensions,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
+
+
+const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
+
 
 const ProductCard = ({ image, onPress }) => {
   const [isLiked, setIsLiked] = useState(false);
 
+  //get all the products when the page is first rendered
+  useEffect(() => {
+    const getProductsDetails = () => {
+      axios.get(`${baseUrl}/Product`)
+    .then(function (response) {
+      // handle success
+     console.log(response.json());
+    })
+    .then(function (json) {
+      console.log(json);
+    })
+    .catch(function (error) {
+      // handle error
+      console.log(error);
+    })
+    }
+  }, [])
+
   return (
+    <ScrollView>
+
     <View style={styles.root}>
       <TouchableOpacity onPress={() => setIsLiked((prev) => !prev)}>
         <View
@@ -56,6 +81,7 @@ const ProductCard = ({ image, onPress }) => {
         </TouchableOpacity>
       </View>
     </View>
+    </ScrollView>
   );
 };
 
@@ -69,8 +95,9 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     borderRadius: 10,
     paddingBottom: 5,
-    borderWidth: 3,
-    borderColor: "#FFFEFE"
+    borderWidth: 1,
+    borderColor: "#CDCDCD",
+    elevation: 15
   },
   image: {
     backgroundColor: "transparent",

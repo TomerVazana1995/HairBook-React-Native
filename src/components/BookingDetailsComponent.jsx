@@ -23,7 +23,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
     backgroundColor: "white",
-    margin: 10
+    margin: 10,
+    elevation: 5,
   },
 });
 

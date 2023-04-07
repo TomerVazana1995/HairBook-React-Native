@@ -1,12 +1,18 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import CustomButton from "../components/CustomButton";
 import { Icon, Input } from "@ui-kitten/components";
 import Footer from "../components/Footer";
 import { Checkbox } from "native-base";
+import axios from "axios";
+import { UserContext } from "../context/context";
+
+const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
+
 
 const LoginScreen = ({ navigation }) => {
   const [phoneNum, setPhoneNum] = useState("");
+  const userContext = useContext(UserContext);
 
   const handlePhoneNumFormat = (input) => {
     const cleaned = ("" + input).replace(/\D/g, "");
@@ -28,32 +34,46 @@ const LoginScreen = ({ navigation }) => {
     setPhoneNum(formatted);
   };
 
+  const getUser = () => {
+    axios.get(`${baseUrl}/Client/${phoneNum}`)
+  .then(function (response) {
+    // handle success
+   console.log(response.data.phoneNum);
+   if(phoneNum === response.data.phoneNum){
+    userContext.setUser({...userContext.user, phoneNum: response.data.phoneNum})
+   }
+  })
+  .catch(function (error) {
+    // handle error
+    console.log(error);
+  })
+  }
+
   return (
     <View style={styles.root}>
       <View style={styles.container}>
-        <Text style={styles.text}>הזן מספר טלפון-נייד להתחברות</Text>
+        <Text style={styles.title}>הזן מספר טלפון-נייד להתחברות</Text>
+        <View style={{width: "70%"}}>
         <Input
           value={phoneNum}
           placeholder="טלפון - נייד"
           textAlign="right"
-          style={{ margin: 10 }}
-          accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
+          style={{ margin: 10}}
+          // accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
           keyboardType="number-pad"
-          onChangeText={handleChangeText}
+          onChangeText={(text) => setPhoneNum(text)}
         />
         <View style={styles.saveUserBox}>
           {/* <Text>שמור משתמש</Text> */}
           <Checkbox flexDirection="row-reverse">שמור משתמש</Checkbox>
         </View>
-        <CustomButton text="התחברות" />
+        </View>
+        <CustomButton text="התחברות" onPress={getUser}/>
         <CustomButton
           type="TERTIARY"
           text="פעם ראשונה? לחץ כאן להרשמה"
           onPress={() => navigation.navigate("Sign up")}
         />
-      </View>
-      <View style={styles.footer}>
-        <Footer />
       </View>
     </View>
   );
@@ -67,10 +87,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
   },
-  text: {
+  title: {
     fontWeight: "bold",
     fontSize: 20,
     paddingTop: "5%",
+    paddingBottom: "15%"
   },
   saveUserBox: {
     flexDirection: "row-reverse",

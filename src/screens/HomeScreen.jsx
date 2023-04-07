@@ -50,24 +50,9 @@ const HomeScreen = () => {
       <View style={{ marginBottom: 30 }}>
         <CustomCarusel data={data} />
       </View>
-      <View style={{ flexDirection: "row", justifyContent: "center" }}>
-        <Button
-          marginRight={2}
-          bgColor="#3770B4"
-          onPress={() => navigation.navigate("Sign up")}
-        >
-          לחץ כאן להרשמה
-        </Button>
-        <Button
-          marginLeft={2}
-          variant="outline"
-          onPress={() => navigation.navigate("Login")}
-        >
-          לחץ כאן להתחברות
-        </Button>
-      </View>
+
       <View style={styles.footer}>
-        <Footer />
+        <Footer/>
       </View>
     </View>
   );
