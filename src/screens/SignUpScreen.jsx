@@ -10,12 +10,16 @@ import axios from "axios";
 import * as SMS from "expo-sms";
 import { UserContext } from "../context/context";
 import { FormControl, ScrollView } from "native-base";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const SignUpScreen = ({ navigation }) => {
+
   const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
   const userContext = useContext(UserContext);
 
+  const [phoneNum, setPhoneNum] = useState('');
   const [isIcon, setIsIcon] = useState(true);
   const [isImage, setIsImage] = useState(false);
   const [code, setCode] = useState("");
@@ -24,28 +28,6 @@ const SignUpScreen = ({ navigation }) => {
   const [error, setError] = useState(false);
 
   const min = new Date(1, 1, 1990);
-
-  //formatting the phone number to xxx-xxxxxxx format
-  const handlePhoneNumFormat = (input) => {
-    const cleaned = ("" + input).replace(/\D/g, "");
-    const match = cleaned.match(/^(\d{0,3})(\d{0,7})(\d{0,})$/);
-    if (!match) {
-      return "";
-    }
-    const formatted =
-      match[1] +
-      (match[1] && match[2] ? "-" : "") +
-      match[2] +
-      (match[2] && match[3] ? "-" : "") +
-      match[3];
-    return formatted;
-  };
-
-  //save the formatted phone number of the user to save in the database
-  const handleChangeText = (input) => {
-    const formatted = handlePhoneNumFormat(input);
-    userContext.setUser({ ...userContext.user, phoneNum: formatted });
-  };
 
   //To open phone gallery when user icon is pressed
   const pickImage = async () => {
@@ -65,23 +47,42 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   //save the new user information in the database
-  const CreateUser = () => {
+  const CreateUser = async () => {
     axios.post(`${baseUrl}/Client`, {
         firstName: userContext.user.firstName,
         lastName: userContext.user.lastName,
-        phoneNum: userContext.user.phoneNum,
+        phoneNum: phoneNum,
         birthDate: userContext.user.birthDate,
         image: userContext.user.image,
         gender: userContext.user.gender,
       })
       .then(function (response) {
-        console.log(response);
+        console.log(response.data);
         alert('user added');
+        
+      })
+      .then(function (data) {
+        console.log(data);
+        
       })
       .catch(function (error) {
         console.log(error);
       });
   };
+
+  const saveUserCredentials = async () => {
+    try {
+      await AsyncStorage.setItem("firstName", phoneNum);
+      await AsyncStorage.setItem("lastName", phoneNum);
+      await AsyncStorage.setItem("phoneNum", phoneNum);
+      await AsyncStorage.setItem("birthDate", phoneNum);
+      await AsyncStorage.setItem("image", phoneNum);
+      await AsyncStorage.setItem("gender", true);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
 
   const sendSMS = async () => {
     // Generate a random 4-digit code
@@ -138,18 +139,18 @@ const SignUpScreen = ({ navigation }) => {
                 placeholder="תאריך לידה"
                 style={{ marginVertical: 10 }}
                 onSelect={(date) =>
-                  userContext.setUser({ ...userContext.user, birthDate: date })
+                  userContext.setUser({ ...userContext.user, birthDate: date  })
                 }
                 // accessoryLeft={(props) => <Icon {...props} name="calendar" />}
                 date={userContext.user.birthDate}
                 min={min}
               />
               <Input
-                value={userContext.user.phoneNum}
+                value={phoneNum}
                 placeholder="טלפון - נייד"
                 textAlign="right"
                 style={{ marginTop: 10 }}
-                onChangeText={handleChangeText}
+                onChangeText={(text) => setPhoneNum(text)}
                 // accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
                 onFocus={() => setVisible(true)}
                 onBlur={() => setVisible(false)}

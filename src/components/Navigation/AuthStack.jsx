@@ -8,9 +8,10 @@ import LoginScreen from '../../screens/LoginScreen';
 const AuthStack = () => {
 
 const Stack = createNativeStackNavigator();
+
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName='' screenOptions={{headerTitleAlign: "center"}}>
+        <Stack.Navigator initialRouteName='Splash' screenOptions={{headerTitleAlign: "center"}}>
             <Stack.Screen name="Splash" component={SplashScreen}/>
             <Stack.Screen name="Sign up" component={SignUpScreen}/>
             <Stack.Screen name="Login" component={LoginScreen}/>

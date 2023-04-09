@@ -1,17 +1,24 @@
 import { View, Text, StyleSheet } from "react-native";
 import React, { useContext, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
 import { Icon, Input } from "@ui-kitten/components";
 import Footer from "../components/Footer";
 import { Checkbox } from "native-base";
 import axios from "axios";
 import { UserContext } from "../context/context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = () => {
   const [phoneNum, setPhoneNum] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+
+  const navigation = useNavigation();
+
   const userContext = useContext(UserContext);
 
   const handlePhoneNumFormat = (input) => {
@@ -34,14 +41,24 @@ const LoginScreen = ({ navigation }) => {
     setPhoneNum(formatted);
   };
 
-  const getUser = () => {
+  const saveUserLoggedIn = async () => {
+    if(isChecked) {
+      await AsyncStorage.setItem("keepLoggedIn", JSON.stringify(true));
+    }
+    else if(!isChecked){
+      await AsyncStorage.removeItem("keepLoggedIn");
+    }
+  }
+
+  const login = () => {
     axios.get(`${baseUrl}/Client/${phoneNum}`)
   .then(function (response) {
     // handle success
    console.log(response.data.phoneNum);
-   if(phoneNum === response.data.phoneNum){
-    userContext.setUser({...userContext.user, phoneNum: response.data.phoneNum})
+   if(response.data.phoneNum != null && response.data.phoneNum != ""){
+    userContext.setIsLoggedIn(true);
    }
+   saveUserLoggedIn();
   })
   .catch(function (error) {
     // handle error
@@ -65,10 +82,10 @@ const LoginScreen = ({ navigation }) => {
         />
         <View style={styles.saveUserBox}>
           {/* <Text>שמור משתמש</Text> */}
-          <Checkbox flexDirection="row-reverse">שמור משתמש</Checkbox>
+          <Checkbox flexDirection="row-reverse" onChange={() => {setIsChecked(!isChecked)}}>שמור משתמש</Checkbox>
         </View>
         </View>
-        <CustomButton text="התחברות" onPress={getUser}/>
+        <CustomButton text="התחברות" onPress={login}/>
         <CustomButton
           type="TERTIARY"
           text="פעם ראשונה? לחץ כאן להרשמה"

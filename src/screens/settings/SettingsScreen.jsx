@@ -7,6 +7,7 @@ import SettingsOption from "../../components/SettingsOption";
 import { UserContext } from "../../context/context";
 import axios from "axios";
 import { Alert } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SettingsScreen = () => {
 
@@ -20,7 +21,7 @@ const logOut = () => {
       onPress: () => console.log('Cancel Pressed'),
       style: 'cancel',
     },
-    {text: 'OK', onPress: () => {  userContext.setUser({...userContext.user, phoneNum: ""})}},
+    {text: 'OK', onPress: () => {{AsyncStorage.removeItem("keepLoggedIn"), userContext.setIsLoggedIn(false)}}},
   ]);
   }
 
