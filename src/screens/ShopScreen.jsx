@@ -2,18 +2,34 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TextInput,
-  SafeAreaView,
   ScrollView,
 } from "react-native";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import picture1 from "../images/product1.jpg";
 import picture2 from "../images/product2.jpg"
 
+const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
+
 const ShopScreen = () => {
+
+  const [products, setProducts] = useState([{}]);
+
+  //get all the products data from the database
+  useEffect(() => {
+    axios
+    .get(`${baseUrl}/Product`)
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
+  },[])
+
   return (
         <View style={styles.root}>
           <View style={{alignItems: "flex-end", marginVertical: 20}}>

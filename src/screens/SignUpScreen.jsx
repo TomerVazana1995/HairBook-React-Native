@@ -7,10 +7,10 @@ import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { Datepicker, Input, Icon } from "@ui-kitten/components/ui";
 import axios from "axios";
-import * as SMS from "expo-sms";
 import { UserContext } from "../context/context";
-import { FormControl, ScrollView } from "native-base";
+import { FormControl, ScrollView, Checkbox, Button } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 
 const SignUpScreen = ({ navigation }) => {
@@ -23,17 +23,28 @@ const SignUpScreen = ({ navigation }) => {
   const [isIcon, setIsIcon] = useState(true);
   const [isImage, setIsImage] = useState(false);
   const [code, setCode] = useState("");
-  const [visible, setVisible] = useState(false);
   const [selectedGender, setSelectedGender] = useState("");
-  const [error, setError] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   const min = new Date(1, 1, 1990);
+
+  //if checkbox is checked save the phone number and logged in
+  const saveUserLoggedIn = async () => {
+    if (isChecked) {
+      await AsyncStorage.setItem("phoneNum", JSON.stringify(phoneNum));
+      await AsyncStorage.setItem("keepLoggedIn", JSON.stringify(true));
+    } else if (!isChecked) {
+      await AsyncStorage.removeItem("phoneNum");
+      await AsyncStorage.removeItem("keepLoggedIn");
+    }
+  };
 
   //To open phone gallery when user icon is pressed
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
+      base64: true,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
@@ -54,53 +65,19 @@ const SignUpScreen = ({ navigation }) => {
         phoneNum: phoneNum,
         birthDate: userContext.user.birthDate,
         image: userContext.user.image,
-        gender: userContext.user.gender,
+        gender: selectedGender,
       })
       .then(function (response) {
         console.log(response.data);
         alert('user added');
-        
-      })
-      .then(function (data) {
-        console.log(data);
-        
+        userContext.setIsLoggedIn(true);
       })
       .catch(function (error) {
         console.log(error);
       });
+      saveUserLoggedIn();
   };
 
-  const saveUserCredentials = async () => {
-    try {
-      await AsyncStorage.setItem("firstName", phoneNum);
-      await AsyncStorage.setItem("lastName", phoneNum);
-      await AsyncStorage.setItem("phoneNum", phoneNum);
-      await AsyncStorage.setItem("birthDate", phoneNum);
-      await AsyncStorage.setItem("image", phoneNum);
-      await AsyncStorage.setItem("gender", true);
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
-
-  const sendSMS = async () => {
-    // Generate a random 4-digit code
-    const code = Math.floor(Math.random() * 9000) + 1000;
-
-    // Send the SMS message with the code
-    const isAvailable = await SMS.isAvailableAsync();
-    if (isAvailable) {
-      const { result } = await SMS.sendSMSAsync(
-        "", // phone numbers to send the message to (can be an array)
-        `Your authentication code is ${code}` // message to send
-      );
-      console.log(result);
-      if (result === "sent") {
-        setCode(code);
-      }
-    }
-  };
 
   return (
     <View style={styles.wraper}>
@@ -122,7 +99,8 @@ const SignUpScreen = ({ navigation }) => {
                 style={{ marginVertical: 10 }}
                 onChangeText={(text) =>
                   userContext.setUser({ ...userContext.user, firstName: text })
-                }   
+                } 
+                accessoryLeft={(props) => <Icon {...props} name="people" />}  
               />
               </KeyboardAvoidingView>
              <Input
@@ -133,17 +111,17 @@ const SignUpScreen = ({ navigation }) => {
                 onChangeText={(text) =>
                   userContext.setUser({ ...userContext.user, lastName: text })
                 }
-                // accessoryLeft={(props) => <Icon {...props} name="people" />}
+                accessoryLeft={(props) => <Icon {...props} name="people" />}
               />
               <Datepicker
                 placeholder="תאריך לידה"
                 style={{ marginVertical: 10 }}
+                
                 onSelect={(date) =>
                   userContext.setUser({ ...userContext.user, birthDate: date  })
                 }
-                // accessoryLeft={(props) => <Icon {...props} name="calendar" />}
-                date={userContext.user.birthDate}
-                min={min}
+                accessoryLeft={(props) => <Icon {...props} name="calendar" />}
+              
               />
               <Input
                 value={phoneNum}
@@ -151,7 +129,7 @@ const SignUpScreen = ({ navigation }) => {
                 textAlign="right"
                 style={{ marginTop: 10 }}
                 onChangeText={(text) => setPhoneNum(text)}
-                // accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
+                accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
                 onFocus={() => setVisible(true)}
                 onBlur={() => setVisible(false)}
                 keyboardType="number-pad"
@@ -159,18 +137,7 @@ const SignUpScreen = ({ navigation }) => {
               <FormControl.HelperText alignSelf="flex-end">
                 *נא הזן מספר טלפון בעל 10 ספרות
               </FormControl.HelperText>
-            
             </FormControl>
-              {/* <OTPInputView
-              style={{width: '80%', height: 200}}
-                pinCount={4}
-                autoFocusOnLoad
-                codeInputFieldStyle={styles.underlineStyleBase}
-                codeInputHighlightStyle={styles.underlineStyleHighLighted}
-                onCodeFilled={(code) => {
-                  console.log(`Code is ${code}, you are good to go!`);
-                }}
-              /> */}
           </View>
           <View
             style={{
@@ -248,7 +215,17 @@ const SignUpScreen = ({ navigation }) => {
               </View>
             </TouchableOpacity>
           </View>
-          <CustomButton text="שמור משתמש" onPress={CreateUser} />
+          <View style={styles.saveUserBox}>
+            <Checkbox
+              flexDirection="row-reverse"
+              onChange={() => {
+                setIsChecked(!isChecked);
+              }}
+            >
+              השאר אותי מחובר
+            </Checkbox>
+          </View>
+          <Button marginTop={5} bgColor="#3770B4" onPress={CreateUser}>שמור משתמש</Button>
           <CustomButton
             type="TERTIARY"
             text="יש משתמש קיים? לחץ כאן להתחברות"
@@ -313,9 +290,13 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderBottomWidth: 1,
   },
-
   underlineStyleHighLighted: {
     borderColor: "#03DAC6",
+  },
+  saveUserBox: {
+    flexDirection: "row-reverse",
+    alignSelf: "center",
+    
   },
 });
 

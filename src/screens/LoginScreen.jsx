@@ -1,98 +1,173 @@
-import { View, Text, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  useWindowDimensions,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import React, { useContext, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
 import { Icon, Input } from "@ui-kitten/components";
 import Footer from "../components/Footer";
-import { Checkbox } from "native-base";
+import { Checkbox, Modal, Button } from "native-base";
 import axios from "axios";
 import { UserContext } from "../context/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Login from "../images/login.png";
+import OTPInputView from "@twotalltotems/react-native-otp-input";
+import { Pressable } from "react-native";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
-
 const LoginScreen = () => {
   const [phoneNum, setPhoneNum] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [OTPcode, setOTPCode] = useState(null);
+
+  const { height } = useWindowDimensions();
 
   const navigation = useNavigation();
 
   const userContext = useContext(UserContext);
 
-  const handlePhoneNumFormat = (input) => {
-    const cleaned = ("" + input).replace(/\D/g, "");
-    const match = cleaned.match(/^(\d{0,3})(\d{0,7})(\d{0,})$/);
-    if (!match) {
-      return "";
-    }
-    const formatted =
-      match[1] +
-      (match[1] && match[2] ? "-" : "") +
-      match[2] +
-      (match[2] && match[3] ? "-" : "") +
-      match[3];
-    return formatted;
-  };
-
-  const handleChangeText = (input) => {
-    const formatted = handlePhoneNumFormat(input);
-    setPhoneNum(formatted);
-  };
-
   const saveUserLoggedIn = async () => {
-    if(isChecked) {
+    if (isChecked) {
+      await AsyncStorage.setItem("phoneNum", JSON.stringify(phoneNum));
       await AsyncStorage.setItem("keepLoggedIn", JSON.stringify(true));
-    }
-    else if(!isChecked){
+    } else if (!isChecked) {
+      await AsyncStorage.removeItem("phoneNum");
       await AsyncStorage.removeItem("keepLoggedIn");
     }
+  };
+
+  const getOTPcode = () => {
+    setModalVisible(true);
+    axios.get(`${baseUrl}/Client/${phoneNum}`)
+    .then(function (response){
+      console.log(response.data);
+      if(response.data.code){
+        setOTPCode(response.data.code);
+      }
+    })
+    .catch(function (error){
+      console.log(error);
+    })
   }
 
   const login = () => {
-    axios.get(`${baseUrl}/Client/${phoneNum}`)
-  .then(function (response) {
-    // handle success
-   console.log(response.data.phoneNum);
-   if(response.data.phoneNum != null && response.data.phoneNum != ""){
-    userContext.setIsLoggedIn(true);
-   }
-   saveUserLoggedIn();
-  })
-  .catch(function (error) {
-    // handle error
-    console.log(error);
-  })
-  }
+    axios
+      .get(`${baseUrl}/Client/${phoneNum}`)
+      .then(function (response) {
+        // handle success
+        console.log(response.data);
+        if (response.data.phoneNum) {
+          userContext.setIsLoggedIn(true);
+          userContext.setUser({
+            ...userContext.user,
+            firstName: response.data.firstName,
+            lastName: response.data.lastName,
+            phoneNum: response.data.phoneNum,
+            birthDate: response.data.birthDate,
+            image: response.data.image,
+            gender: response.data.gender,
+          });
+          console.log();
+        }
+        saveUserLoggedIn();
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+      });
+  };
 
   return (
-    <View style={styles.root}>
-      <View style={styles.container}>
-        <Text style={styles.title}>הזן מספר טלפון-נייד להתחברות</Text>
-        <View style={{width: "70%"}}>
-        <Input
-          value={phoneNum}
-          placeholder="טלפון - נייד"
-          textAlign="right"
-          style={{ margin: 10}}
-          // accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
-          keyboardType="number-pad"
-          onChangeText={(text) => setPhoneNum(text)}
-        />
-        <View style={styles.saveUserBox}>
-          {/* <Text>שמור משתמש</Text> */}
-          <Checkbox flexDirection="row-reverse" onChange={() => {setIsChecked(!isChecked)}}>שמור משתמש</Checkbox>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.root}>
+        <View style={styles.container}>
+          <Image
+            source={Login}
+            resizeMode="contain"
+            style={[styles.image, { height: height * 0.7 }]}
+          />
+          <Text style={styles.title}>הזן מספר טלפון-נייד להתחברות</Text>
+          <View style={{ width: "70%" }}>
+            <Input
+              keyboardType="number-pad"
+              value={phoneNum}
+              placeholder="טלפון - נייד"
+              textAlign="right"
+              style={{ margin: 10 }}
+              accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
+              onChangeText={(text) => setPhoneNum(text)}
+           
+              autoFocus={false}
+            />
+            <View style={styles.saveUserBox}>
+              <Checkbox
+                flexDirection="row-reverse"
+                onChange={() => {
+                  setIsChecked(!isChecked);
+                }}
+              >
+                השאר אותי מחובר
+              </Checkbox>
+            </View>
+          </View>
+          <Button bgColor="#3770B4" onPress={getOTPcode}>
+            שלח קוד לנייד
+          </Button>
+          <CustomButton
+            type="TERTIARY"
+            text="פעם ראשונה? לחץ כאן להרשמה"
+            onPress={() => navigation.navigate("Sign up")}
+          />
+          <Modal
+            isOpen={modalVisible}
+            onClose={() => setModalVisible(false)}
+            avoidKeyboard
+            justifyContent="center"
+            bottom="4"
+            size="lg"
+          >
+            <Modal.Content>
+              <Modal.CloseButton />
+              <Modal.Header alignSelf="center">אימות משתמש</Modal.Header>
+              <Modal.Body alignItems="center">
+                נא הכנס את קוד בעל 4 ספרות שנשלח לנייד
+                <OTPInputView
+                placeholderTextColor="black"
+                  style={{ width: "80%", height: 50, alignSelf: "center", marginBottom: 20 }}
+                  pinCount={4}
+                  codeInputFieldStyle={styles.underlineStyleBase}
+                  codeInputHighlightStyle={styles.underlineStyleHighLighted}
+                  onCodeFilled={(code) => {
+                    console.log(`Code is ${code}, you are good to go!`);
+                  }}
+                  autoFocusOnLoad={false}
+                />
+                לא קיבל קוד אימות?<Pressable><Text style={{textDecorationLine: "underline", color: "blue"}}>לחץ כאן</Text></Pressable>
+              </Modal.Body>
+              <Modal.Footer justifyContent="center">
+                <Button
+                  bgColor="#3770B4"
+                  width="80%"
+                  onPress={() => {
+                    setModalVisible(false);
+                  }}
+                >
+                  המשך
+                </Button>
+              </Modal.Footer>
+            </Modal.Content>
+          </Modal>
         </View>
-        </View>
-        <CustomButton text="התחברות" onPress={login}/>
-        <CustomButton
-          type="TERTIARY"
-          text="פעם ראשונה? לחץ כאן להרשמה"
-          onPress={() => navigation.navigate("Sign up")}
-        />
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -107,8 +182,6 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "bold",
     fontSize: 20,
-    paddingTop: "5%",
-    paddingBottom: "15%"
   },
   saveUserBox: {
     flexDirection: "row-reverse",
@@ -118,6 +191,23 @@ const styles = StyleSheet.create({
   footer: {
     justifyContent: "flex-end",
     flex: 1,
+  },
+  image: {
+    width: "100%",
+    maxHeight: 400,
+    aspectRatio: 1,
+    top: -20,
+  },
+  underlineStyleBase: {
+    width: 30,
+    height: 45,
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderColor: "black",
+    color: "black"
+  },
+  underlineStyleHighLighted: {
+    borderColor: "#03DAC6",
   },
 });
 

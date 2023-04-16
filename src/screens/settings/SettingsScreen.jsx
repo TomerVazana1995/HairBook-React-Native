@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Heading, Avatar } from "native-base";
 import CustomButton from "../../components/CustomButton";
@@ -8,23 +8,32 @@ import { UserContext } from "../../context/context";
 import axios from "axios";
 import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react";
 
 const SettingsScreen = () => {
+  const userContext = useContext(UserContext);
+  const navigation = useNavigation();
 
-const userContext = useContext(UserContext);
-const navigation = useNavigation();
 
-const logOut = () => {
-  Alert.alert('Alert Title', 'My Alert Msg', [
-    {
-      text: 'Cancel',
-      onPress: () => console.log('Cancel Pressed'),
-      style: 'cancel',
-    },
-    {text: 'OK', onPress: () => {{AsyncStorage.removeItem("keepLoggedIn"), userContext.setIsLoggedIn(false)}}},
-  ]);
-  }
-
+  const logOut = () => {
+    Alert.alert("Alert Title", "My Alert Msg", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel Pressed"),
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: () => {
+          {
+            AsyncStorage.removeItem("keepLoggedIn"),
+              AsyncStorage.removeItem("phoneNum"),
+              userContext.setIsLoggedIn(false);
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <View style={styles.root}>
@@ -35,10 +44,13 @@ const logOut = () => {
           }}
           size="2xl"
         />
-        <Text style={{ fontWeight: "bold", fontSize: 25, padding: 10 }}>
-          {userContext.user.firstName} {userContext.user.lastName}
+        <Text style={{ fontWeight: "bold", fontSize: 25, padding: 10, flexDirection: "row-reverse" }}>
+          {userContext.user.lastName} {userContext.user.firstName}
         </Text>
-        <CustomButton text="עדכן פרטים אישיים" onPress={() => navigation.navigate("PersonalDetails screen")}/>
+        <CustomButton
+          text="עדכן פרטים אישיים"
+          onPress={() => navigation.navigate("PersonalDetails screen")}
+        />
       </View>
       <View
         style={{
@@ -48,11 +60,20 @@ const logOut = () => {
           alignItems: "flex-end",
         }}
       >
-        <Text style={{ color: "grey", fontWeight: "bold", fontSize: 20, paddingRight: 20 }}>אפשרויות</Text>
+        <Text
+          style={{
+            color: "grey",
+            fontWeight: "bold",
+            fontSize: 20,
+            paddingRight: 20,
+          }}
+        >
+          אפשרויות
+        </Text>
       </View>
-      <SettingsOption icon="notifications" text="התראות" visible={true}/>
-      <SettingsOption icon="notifications" text="התנתק" onPress={logOut}/>
-      <SettingsOption icon="notifications" text="מחק משתמש" color="red"/>
+      <SettingsOption icon="notifications" text="התראות" visible={true} />
+      <SettingsOption icon="notifications" text="התנתק" onPress={logOut} />
+      <SettingsOption icon="notifications" text="מחק משתמש" color="red" />
     </View>
   );
 };

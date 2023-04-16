@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import React from "react";
+import { TouchableOpacity } from "react-native";
+import React, {useEffect} from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import {
   createDrawerNavigator,
@@ -72,8 +72,8 @@ const MainStack = () => {
           name="דף הבית"
           component={HomeScreen}
           options={{
-            drawerIcon: () => <Ionicons name="home" size={15} />,
-            drawerLabelStyle: { textAlign: "right" },
+            drawerIcon: () => <Ionicons name="home" size={20} />,
+            drawerLabelStyle: { textAlign: "right", fontSize: 17 },
           }}
         />
         <Drawer.Screen
@@ -81,33 +81,33 @@ const MainStack = () => {
           component={BookingScreen}
           options={{
             drawerIcon: () => (
-              <MaterialCommunityIcons name="human-queue" size={20} />
+              <MaterialCommunityIcons name="human-queue" size={25} />
             ),
-            drawerLabelStyle: { textAlign: "right" },
+            drawerLabelStyle: { textAlign: "right", fontSize: 17  },
           }}
         />
         <Drawer.Screen
           name="חנות מוצרים"
           component={ShopScreen}
           options={{
-            drawerIcon: () => <FontAwesome5 name="store" size={15} />,
-            drawerLabelStyle: { textAlign: "right" },
+            drawerIcon: () => <FontAwesome5 name="store" size={17} />,
+            drawerLabelStyle: { textAlign: "right", fontSize: 17  },
           }}
         />
         <Drawer.Screen
           name="הצוות שלנו"
           component={OurTeamScreen}
           options={{
-            drawerIcon: () => <AntDesign name="team" size={20} />,
-            drawerLabelStyle: { textAlign: "right" },
+            drawerIcon: () => <AntDesign name="team" size={25} />,
+            drawerLabelStyle: { textAlign: "right", fontSize: 17  },
           }}
         />
         <Drawer.Screen
           name="הגדרות"
           component={SettingsNavigator}
           options={{
-            drawerIcon: () => <Ionicons name="settings" size={20} />,
-            drawerLabelStyle: { textAlign: "right" },
+            drawerIcon: () => <Ionicons name="settings" size={25} />,
+            drawerLabelStyle: { textAlign: "right", fontSize: 17  },
           }}
         />
         <Drawer.Screen

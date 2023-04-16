@@ -65,13 +65,6 @@ const ProductCard = ({ image, onPress }) => {
       <View style={{ flex: 2, alignItems: "center" }}>
         <Text>קרם לעיצוב שיער</Text>
         <Text>₪ 249.99</Text>
-        <View style={{ flexDirection: "row", margin: 10 }}>
-          <AntDesign style={{ marginHorizontal: 2 }} name="staro" />
-          <AntDesign style={{ marginHorizontal: 2 }} name="staro" />
-          <AntDesign style={{ marginHorizontal: 2 }} name="staro" />
-          <AntDesign style={{ marginHorizontal: 2 }} name="staro" />
-          <AntDesign style={{ marginHorizontal: 2 }} name="staro" />
-        </View>
         <Text style={{ padding: 10 }}>כמות במלאי: 5</Text>
         <TouchableOpacity onPress={onPress}>
           <View style={{alignItems: "center"}}>
@@ -92,12 +85,11 @@ const styles = StyleSheet.create({
     shadowOffset: {  height: 1 },
     shadowOpacity: 1,
     shadowColor: "grey",
-    shadowRadius: 5,
     borderRadius: 10,
     paddingBottom: 5,
     borderWidth: 1,
     borderColor: "#CDCDCD",
-    elevation: 15
+    elevation: 5
   },
   image: {
     backgroundColor: "transparent",

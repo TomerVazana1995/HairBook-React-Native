@@ -1,14 +1,17 @@
 import { View, StyleSheet } from "react-native";
-import React from "react";
+import React, {useContext, useEffect} from "react";
 import { useNavigation } from "@react-navigation/native";
 import Footer from "../components/Footer";
 import CustomCarusel from "../components/CustomCarusel";
 import { Button } from "native-base";
 import axios from "axios";
+import { UserContext } from "../context/context";
 
 const HomeScreen = () => {
   const baseUrl = "http://192.168.1.106/api";
   const navigation = useNavigation();
+
+  const userContext = useContext(UserContext);
 
   const data = [
     {
@@ -21,6 +24,7 @@ const HomeScreen = () => {
       image: require("../../assets/images/image3.png"),
     },
   ];
+
 
   return (
     <View
