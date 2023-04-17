@@ -8,8 +8,6 @@ const OurTeamScreen = () => {
       <Text style={styles.title}>Our Team</Text>
       <View>
         <WorkerCard/>
-        <WorkerCard/>
-        <WorkerCard/>
       </View>
     </View>
   )

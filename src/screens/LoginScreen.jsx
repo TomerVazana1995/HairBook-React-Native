@@ -7,12 +7,12 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useRef } from "react";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
 import { Icon, Input } from "@ui-kitten/components";
 import Footer from "../components/Footer";
-import { Checkbox, Modal, Button } from "native-base";
+import { Checkbox, Modal, Button, CheckIcon, CloseIcon } from "native-base";
 import axios from "axios";
 import { UserContext } from "../context/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -27,6 +27,9 @@ const LoginScreen = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [OTPcode, setOTPCode] = useState(null);
+  const [validCode, setValidCode] = useState(false);
+  const [clearInputs, setClearInputs] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   const { height } = useWindowDimensions();
 
@@ -38,25 +41,22 @@ const LoginScreen = () => {
     if (isChecked) {
       await AsyncStorage.setItem("phoneNum", JSON.stringify(phoneNum));
       await AsyncStorage.setItem("keepLoggedIn", JSON.stringify(true));
-    } else if (!isChecked) {
-      await AsyncStorage.removeItem("phoneNum");
-      await AsyncStorage.removeItem("keepLoggedIn");
     }
   };
 
   const getOTPcode = () => {
+    setClearInputs(false);
     setModalVisible(true);
-    axios.get(`${baseUrl}/Client/${phoneNum}`)
-    .then(function (response){
-      console.log(response.data);
-      if(response.data.code){
-        setOTPCode(response.data.code);
-      }
-    })
-    .catch(function (error){
-      console.log(error);
-    })
-  }
+    axios
+      .get(`${baseUrl}/Client/GetCode?phoneNum=${phoneNum}`)
+      .then(function (response) {
+        console.log(response.data);
+        setOTPCode(response.data);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   const login = () => {
     axios
@@ -85,6 +85,16 @@ const LoginScreen = () => {
       });
   };
 
+  function validCodeView() {
+    setValidCode(true);
+    setDisabled(false);
+  }
+
+  function notValidCodeView(){
+    setValidCode(false)
+    setDisabled(true)
+  }
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.root}>
@@ -104,7 +114,6 @@ const LoginScreen = () => {
               style={{ margin: 10 }}
               accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
               onChangeText={(text) => setPhoneNum(text)}
-           
               autoFocus={false}
             />
             <View style={styles.saveUserBox}>
@@ -140,25 +149,44 @@ const LoginScreen = () => {
               <Modal.Body alignItems="center">
                 נא הכנס את קוד בעל 4 ספרות שנשלח לנייד
                 <OTPInputView
-                placeholderTextColor="black"
-                  style={{ width: "80%", height: 50, alignSelf: "center", marginBottom: 20 }}
+                  placeholderTextColor="black"
+                  style={{
+                    width: "80%",
+                    height: 50,
+                    alignSelf: "center",
+                    marginBottom: 10,
+                  }}
                   pinCount={4}
                   codeInputFieldStyle={styles.underlineStyleBase}
                   codeInputHighlightStyle={styles.underlineStyleHighLighted}
                   onCodeFilled={(code) => {
-                    console.log(`Code is ${code}, you are good to go!`);
+                    if(code == OTPcode){
+                      alert("code is valid");
+                    }
                   }}
+                  editable={true}
                   autoFocusOnLoad={false}
+                  clearInputs={clearInputs}
                 />
-                לא קיבל קוד אימות?<Pressable><Text style={{textDecorationLine: "underline", color: "blue"}}>לחץ כאן</Text></Pressable>
+                {validCode ? (
+                  <CheckIcon size="10" mt="0.5" color="emerald.500" />
+                ) : (
+                  <CloseIcon size="10" mt="0.5" color="red" />
+                )}
+                לא קיבל קוד אימות?
+                <Pressable>
+                  <Text
+                    style={{ textDecorationLine: "underline", color: "blue" }}
+                  >
+                    לחץ כאן
+                  </Text>
+                </Pressable>
               </Modal.Body>
               <Modal.Footer justifyContent="center">
                 <Button
-                  bgColor="#3770B4"
+                  bgColor={disabled ? "blue.300" : "#3770B4"}
                   width="80%"
-                  onPress={() => {
-                    setModalVisible(false);
-                  }}
+                  onPress={login}
                 >
                   המשך
                 </Button>
@@ -204,7 +232,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     borderBottomWidth: 1,
     borderColor: "black",
-    color: "black"
+    color: "black",
   },
   underlineStyleHighLighted: {
     borderColor: "#03DAC6",

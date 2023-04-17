@@ -92,6 +92,7 @@ const MainStack = () => {
           options={{
             drawerIcon: () => <FontAwesome5 name="store" size={17} />,
             drawerLabelStyle: { textAlign: "right", fontSize: 17  },
+            headerLeft: () => (<TouchableOpacity><MaterialCommunityIcons style={{marginLeft: 10}} size={25} name="shopping-outline" color="white"/></TouchableOpacity>)
           }}
         />
         <Drawer.Screen
