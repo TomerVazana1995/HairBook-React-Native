@@ -6,6 +6,7 @@ import CustomCarusel from "../components/CustomCarusel";
 import { Button } from "native-base";
 import axios from "axios";
 import { UserContext } from "../context/context";
+import DatePicker from 'react-native-modern-datepicker';
 
 const HomeScreen = () => {
   const baseUrl = "http://192.168.1.106/api";
@@ -54,7 +55,6 @@ const HomeScreen = () => {
       <View style={{ marginBottom: 30 }}>
         <CustomCarusel data={data} />
       </View>
-
       <View style={styles.footer}>
         <Footer/>
       </View>

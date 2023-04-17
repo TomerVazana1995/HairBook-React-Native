@@ -47,9 +47,8 @@ const WorkerCard = () => {
   return (
     <>
       {employees.map((employee, index) => (
-        <TouchableOpacity>
+        <TouchableOpacity key={index}>
           <Animated.View
-          key={index}
             style={[
               styles.container,
               { transform: [{ translateY: translateY }], opacity: opacity },
@@ -61,7 +60,7 @@ const WorkerCard = () => {
               marginLeft={5}
             />
             <View>
-            <Text style={{ fontSize: 20 }}>תומר וזנה - ספר גברים</Text>
+            <Text style={{ fontSize: 20 }}>{employee.firstName} {employee.lastName} -</Text>
             </View>
           </Animated.View>
         </TouchableOpacity>

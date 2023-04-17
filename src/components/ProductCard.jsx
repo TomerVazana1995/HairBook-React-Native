@@ -12,6 +12,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button } from "native-base";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
+import DatePicker from "react-native-modern-datepicker";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -20,7 +21,7 @@ const ProductCard = ({ onPress }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState("");
   const [amount, setAmount] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
+  const [datePickerVisivle, setDatePickerVisible] = useState(false);
 
   //get all the products when the page is first rendered
   const getProductsDetails = () => {
@@ -32,6 +33,7 @@ const ProductCard = ({ onPress }) => {
         const productsWithLiked = response.data.map((product) => ({
           ...product,
           liked: false,
+          date: ""
         }));
         setProducts(productsWithLiked);
       })
@@ -48,6 +50,14 @@ const ProductCard = ({ onPress }) => {
     setProducts((prevProducts) =>
       prevProducts.map((product, i) =>
         i === index ? { ...product, liked: !product.liked } : product
+      )
+    );
+  };
+
+  const toggleDate = (date, index) => {
+    setProducts((prevProducts) =>
+      prevProducts.map((product, i) =>
+        i === index ? { ...product, date: date } : product
       )
     );
   };
@@ -107,58 +117,88 @@ const ProductCard = ({ onPress }) => {
               key={index}
               backdropVisible={false}
               isOpen={modalVisible}
-              onClose={() => {setModalVisible(false), setAmount(0)}}
+              onClose={() => {
+                setModalVisible(false), setAmount(0), setDatePickerVisible(false)
+              }}
               avoidKeyboard
               justifyContent="center"
               bottom="4"
               size="lg"
             >
-              <Modal.Content borderWidth={1} borderColor="#CDCDCD">
+              <Modal.Content
+                borderWidth={1}
+                borderColor="#CDCDCD"
+                backgroundColor="white"
+                width="90%"
+              >
                 <Modal.CloseButton />
-                <Modal.Header alignSelf="center">
-                  {selectedProduct.productName}
+                <Modal.Header
+                  alignSelf="center"
+                  backgroundColor="white"
+                  width="100%"
+                  alignItems="center"
+                >
+                  {!datePickerVisivle
+                    ? selectedProduct.productName
+                    : "בחר תאריך לאסוף את המוצר"}
                 </Modal.Header>
                 <Modal.Body alignItems="center">
-                  <Image
-                    style={styles.image}
-                    source={{ uri: selectedProduct.image }}
-                    resizeMode="contain"
-                  />
-                  <View>
-                    <Text>{selectedProduct.description}</Text>
-                  </View>
-                  <Text style={{marginTop: 10}}>כמות</Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <TouchableOpacity onPress={() => {amount === 0 ? null : setAmount(amount - 1)}}>
-                    <AntDesign name="minus" size={20} />
-                    </TouchableOpacity>
-                    <View
-                      style={{
-                        borderRadius: 5,
-                        borderWidth: 2,
-                        width: 30,
-                        height: 30,
-                        marginHorizontal: 10,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text style={{fontWeight: "bold"}}>{amount}</Text>
-                    </View>
-                    <TouchableOpacity onPress={() => setAmount(amount + 1)}>
-                    <AntDesign name="plus" size={20} />
-                    </TouchableOpacity>
-                  </View>
+                  {!datePickerVisivle ? (
+                    <>
+                      <Image
+                        style={styles.image}
+                        source={{ uri: selectedProduct.image }}
+                        resizeMode="contain"
+                      />
+                      <View>
+                        <Text>{selectedProduct.description}</Text>
+                      </View>
+                      <Text style={{ marginTop: 10 }}>כמות</Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => {
+                            amount === 0 ? null : setAmount(amount - 1);
+                          }}
+                        >
+                          <AntDesign name="minus" size={20} />
+                        </TouchableOpacity>
+                        <View
+                          style={{
+                            borderRadius: 5,
+                            borderWidth: 2,
+                            width: 30,
+                            height: 30,
+                            marginHorizontal: 10,
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text style={{ fontWeight: "bold" }}>{amount}</Text>
+                        </View>
+                        <TouchableOpacity onPress={() => setAmount(amount + 1)}>
+                          <AntDesign name="plus" size={20} />
+                        </TouchableOpacity>
+                      </View>
+                    </>
+                  ) : (<View style={{width: "100%", height: "100%", alignItems: "center"}}>
+                       <DatePicker mode="calendar" onDateChange={(date) => {toggleDate(date, index)}} />
+                    <Text>{product.date}</Text>
+                  </View>   
+                  )}
                 </Modal.Body>
                 <Modal.Footer justifyContent="center">
-                  <Button bgColor="#3770B4" width="80%">
-                    המשך
+                  <Button
+                    bgColor="#3770B4"
+                    width="80%"
+                    onPress={() => setDatePickerVisible(!datePickerVisivle)}
+                  >
+                    {datePickerVisivle ? "בחר תאריך" : "הזמן מוצר"}
                   </Button>
                 </Modal.Footer>
               </Modal.Content>
