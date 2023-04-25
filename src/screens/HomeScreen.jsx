@@ -50,6 +50,16 @@ const HomeScreen = () => {
         >
           כתובת ויצירת קשר
         </Button>
+        <Button
+          alignSelf="center"
+          variant="outline"
+          style={{ borderRadius: 15, marginHorizontal: 10 }}
+          onPress={() => {
+            navigation.navigate("map");
+          }}
+        >
+          נווט אל העסק
+        </Button>
       </View>
       </View>
       <View style={{ marginBottom: 30 }}>

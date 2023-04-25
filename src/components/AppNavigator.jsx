@@ -23,7 +23,7 @@ const AppNavigator = () => {
     _retrieveData();
   },[])
 
-  if(userContext.isLoggedIn){
+  if(true){
     return <MainStack/>
   }
   else {

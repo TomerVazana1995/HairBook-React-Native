@@ -1,14 +1,8 @@
 import React from "react";
-import MapView, { Callout, Marker } from "react-native-maps";
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { StyleSheet, View, Text } from "react-native";
 
 const MapComponent = () => {
-  const initialRegion = {
-    latitude: 32.0853,
-    longitude: 34.7818,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  };
 
   return (
     <View style={styles.container}>
@@ -20,6 +14,7 @@ const MapComponent = () => {
           latitudeDelta: 0.005,
           longitudeDelta: 0.005,
         }}
+        provider={PROVIDER_GOOGLE}
       >
         <Marker coordinate={{ latitude: 32.176629, longitude: 34.901105 }}>
           <Callout>

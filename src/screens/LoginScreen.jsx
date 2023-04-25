@@ -45,7 +45,7 @@ const LoginScreen = () => {
   };
 
   const getOTPcode = () => {
-    setClearInputs(false);
+    //setClearInputs(false);
     setModalVisible(true);
     axios
       .get(`${baseUrl}/Client/GetCode?phoneNum=${phoneNum}`)

@@ -60,7 +60,7 @@ const WorkerCard = () => {
               marginLeft={5}
             />
             <View>
-            <Text style={{ fontSize: 20 }}>{employee.firstName} {employee.lastName} -</Text>
+            <Text style={{ fontSize: 20}}>{employee.firstName} {employee.lastName}</Text>
             </View>
           </Animated.View>
         </TouchableOpacity>
@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     marginVertical: 15,
     elevation: 15,
+    textAlign: "center"
   },
 });
 

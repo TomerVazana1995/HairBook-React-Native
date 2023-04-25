@@ -33,9 +33,6 @@ const SignUpScreen = ({ navigation }) => {
     if (isChecked) {
       await AsyncStorage.setItem("phoneNum", JSON.stringify(phoneNum));
       await AsyncStorage.setItem("keepLoggedIn", JSON.stringify(true));
-    } else if (!isChecked) {
-      await AsyncStorage.removeItem("phoneNum");
-      await AsyncStorage.removeItem("keepLoggedIn");
     }
   };
 
@@ -130,8 +127,6 @@ const SignUpScreen = ({ navigation }) => {
                 style={{ marginTop: 10 }}
                 onChangeText={(text) => setPhoneNum(text)}
                 accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
-                onFocus={() => setVisible(true)}
-                onBlur={() => setVisible(false)}
                 keyboardType="number-pad"
               /> 
               <FormControl.HelperText alignSelf="flex-end">
@@ -148,12 +143,7 @@ const SignUpScreen = ({ navigation }) => {
           >
             <TouchableOpacity
               onPress={() => {
-                setSelectedGender("זכר"),
-                  userContext.setUser({
-                    ...userContext.user,
-                    gender: selectedGender,
-                  }),
-                  console.log(userContext.user);
+                setSelectedGender("זכר")
               }}
             >
               <View
@@ -182,12 +172,7 @@ const SignUpScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setSelectedGender("נקבה"),
-                  userContext.setUser({
-                    ...userContext.user,
-                    gender: selectedGender,
-                  }),
-                  console.log(userContext.user);
+                setSelectedGender("נקבה")
               }}
             >
               <View
