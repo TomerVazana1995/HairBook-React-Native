@@ -1,18 +1,17 @@
 import { View, Text, StyleSheet } from "react-native";
 import React from "react";
-import MapComponent from "../components/MapComponent";
+import { useNavigation } from "@react-navigation/native";
 import { Heading, Button } from "native-base";
-import CustomButton from "../components/CustomButton";
 
 const BusinessDetailsScreen = () => {
+
+  const navigation = useNavigation();
+
   return (
     <View style={styles.root}>
       <Heading textAlign="center" padding={15}>
         <Text style={styles.title}>קצת עלינו</Text>
       </Heading>
-      <View style={styles.map_container}>
-        <MapComponent />
-      </View>
       <View style={{ textAlign: "flex-end", marginBottom: 10 }}>
         <Text style={styles.text}>
           <Text style={{ fontWeight: "bold" }}> כתובת:</Text> ויצמן 42, כפר סבא
@@ -29,7 +28,7 @@ const BusinessDetailsScreen = () => {
         width="50%"
         alignSelf="center"
         backgroundColor="#3770B4"
-        onPress={() => {}}
+        onPress={() => {navigation.navigate("map")}}
       >
         נווט לבית העסק
       </Button>

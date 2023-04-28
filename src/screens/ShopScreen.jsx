@@ -57,7 +57,7 @@ const ShopScreen = () => {
   const handleFilter = (searchTerm) => {
     setProducts(
       products.filter((product) =>
-        product.productName.toUpperCase().includes(searchTerm.toUpperCase())
+        product.productName.includes(searchTerm)
       )
     );
   };

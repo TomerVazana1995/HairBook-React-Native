@@ -37,11 +37,10 @@ const HomeScreen = () => {
           marginTop: 40,
           marginBottom: 30,
           width: "50%",
-          alignItems: "center",
+          flexDirection: "row"
         }}
       >
         <Button
-          alignSelf="center"
           variant="outline"
           style={{ borderRadius: 15, marginHorizontal: 10 }}
           onPress={() => {
@@ -51,7 +50,6 @@ const HomeScreen = () => {
           כתובת ויצירת קשר
         </Button>
         <Button
-          alignSelf="center"
           variant="outline"
           style={{ borderRadius: 15, marginHorizontal: 10 }}
           onPress={() => {
