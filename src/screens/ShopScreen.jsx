@@ -63,44 +63,44 @@ const ShopScreen = () => {
   };
 
   //need to fix!!!!!
-  async function handleLikeProduct(index) {
-    const product = products[index];
-    console.log("products number:", product.productNum);
-    await AsyncStorage.getItem("likedProducts")
-      .then((likedProducts) => {
-        console.log("products already liked:", JSON.parse(likedProducts));
-        let newLikedProducts = [];
-        newLikedProducts.push(JSON.parse(likedProducts));
-        console.log("this is new liked products", newLikedProducts);
+  // async function handleLikeProduct(index) {
+  //   const product = products[index];
+  //   console.log("products number:", product.productNum);
+  //   await AsyncStorage.getItem("likedProducts")
+  //     .then((likedProducts) => {
+  //       console.log("products already liked:", JSON.parse(likedProducts));
+  //       let newLikedProducts = [];
+  //       newLikedProducts.push(JSON.parse(likedProducts));
+  //       console.log("this is new liked products", newLikedProducts);
 
-        if (newLikedProducts) {
-          const existingProduct = newLikedProducts.find((p) => {
-            p.productNum === product.productNum, console.log("this is p", p);
-          });
-          console.log(existingProduct);
-          if (!existingProduct) {
-            newLikedProducts.push(product);
-            AsyncStorage.setItem(
-              "likedProducts",
-              JSON.stringify(newLikedProducts)
-            )
-              .then(() => {
-                console.log("Product added to likedProducts:", product);
-              })
-              .catch((error) => console.log(error));
-          } else {
-            console.log("Product already exists in likedProducts:", product);
-          }
-        } else {
-          AsyncStorage.setItem("likedProducts", JSON.stringify(product))
-            .then(() => {
-              console.log("product saved");
-            })
-            .catch((error) => console.log(error));
-        }
-      })
-      .catch((error) => console.log("the error is", error));
-  }
+  //       if (newLikedProducts) {
+  //         const existingProduct = newLikedProducts.find((p) => {
+  //           p.productNum === product.productNum, console.log("this is p", p);
+  //         });
+  //         console.log(existingProduct);
+  //         if (!existingProduct) {
+  //           newLikedProducts.push(product);
+  //           AsyncStorage.setItem(
+  //             "likedProducts",
+  //             JSON.stringify(newLikedProducts)
+  //           )
+  //             .then(() => {
+  //               console.log("Product added to likedProducts:", product);
+  //             })
+  //             .catch((error) => console.log(error));
+  //         } else {
+  //           console.log("Product already exists in likedProducts:", product);
+  //         }
+  //       } else {
+  //         AsyncStorage.setItem("likedProducts", JSON.stringify(product))
+  //           .then(() => {
+  //             console.log("product saved");
+  //           })
+  //           .catch((error) => console.log(error));
+  //       }
+  //     })
+  //     .catch((error) => console.log("the error is", error));
+  // }
 
   const checkIfProductsExist = async () => {
     try {

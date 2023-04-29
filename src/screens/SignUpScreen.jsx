@@ -1,5 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView } from "react-native";
-import React, { useContext, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+} from "react-native";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import PickImageComponent from "../components/PickImageComponent";
@@ -10,19 +16,20 @@ import axios from "axios";
 import { UserContext } from "../context/context";
 import { FormControl, ScrollView, Checkbox, Button } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 
-
-
-const SignUpScreen = ({ navigation }) => {
-
+const SignUpScreen = () => {
   const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
   const userContext = useContext(UserContext);
 
-  const [phoneNum, setPhoneNum] = useState('');
+  const navigation = useNavigation();
+  const isFocus = useIsFocused();
+
+  const [phoneNum, setPhoneNum] = useState("");
   const [isIcon, setIsIcon] = useState(true);
   const [isImage, setIsImage] = useState(false);
-  const [code, setCode] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
   const [isChecked, setIsChecked] = useState(false);
 
@@ -56,25 +63,26 @@ const SignUpScreen = ({ navigation }) => {
 
   //save the new user information in the database
   const CreateUser = async () => {
-    axios.post(`${baseUrl}/Client`, {
+    axios
+      .post(`${baseUrl}/Client`, {
         firstName: userContext.user.firstName,
         lastName: userContext.user.lastName,
         phoneNum: phoneNum,
         birthDate: userContext.user.birthDate,
         image: userContext.user.image,
         gender: selectedGender,
+        token: expoPushToken,
       })
       .then(function (response) {
         console.log(response.data);
-        alert('user added');
+        alert("user added");
         userContext.setIsLoggedIn(true);
       })
       .catch(function (error) {
         console.log(error);
       });
-      saveUserLoggedIn();
+    saveUserLoggedIn();
   };
-
 
   return (
     <View style={styles.wraper}>
@@ -88,19 +96,22 @@ const SignUpScreen = ({ navigation }) => {
           />
           <View style={{ width: "70%", marginVertical: 15 }}>
             <FormControl>
-              <KeyboardAvoidingView>        
-               <Input
-                value={userContext.user.firstName}
-                placeholder="שם פרטי"
-                textAlign="right"
-                style={{ marginVertical: 10 }}
-                onChangeText={(text) =>
-                  userContext.setUser({ ...userContext.user, firstName: text })
-                } 
-                accessoryLeft={(props) => <Icon {...props} name="people" />}  
-              />
+              <KeyboardAvoidingView>
+                <Input
+                  value={userContext.user.firstName}
+                  placeholder="שם פרטי"
+                  textAlign="right"
+                  style={{ marginVertical: 10 }}
+                  onChangeText={(text) =>
+                    userContext.setUser({
+                      ...userContext.user,
+                      firstName: text,
+                    })
+                  }
+                  accessoryLeft={(props) => <Icon {...props} name="people" />}
+                />
               </KeyboardAvoidingView>
-             <Input
+              <Input
                 value={userContext.user.lastName}
                 placeholder="שם משפחה"
                 textAlign="right"
@@ -113,12 +124,10 @@ const SignUpScreen = ({ navigation }) => {
               <Datepicker
                 placeholder="תאריך לידה"
                 style={{ marginVertical: 10 }}
-                
                 onSelect={(date) =>
-                  userContext.setUser({ ...userContext.user, birthDate: date  })
+                  userContext.setUser({ ...userContext.user, birthDate: date })
                 }
                 accessoryLeft={(props) => <Icon {...props} name="calendar" />}
-              
               />
               <Input
                 value={phoneNum}
@@ -128,7 +137,7 @@ const SignUpScreen = ({ navigation }) => {
                 onChangeText={(text) => setPhoneNum(text)}
                 accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
                 keyboardType="number-pad"
-              /> 
+              />
               <FormControl.HelperText alignSelf="flex-end">
                 *נא הזן מספר טלפון בעל 10 ספרות
               </FormControl.HelperText>
@@ -143,7 +152,7 @@ const SignUpScreen = ({ navigation }) => {
           >
             <TouchableOpacity
               onPress={() => {
-                setSelectedGender("זכר")
+                setSelectedGender("זכר");
               }}
             >
               <View
@@ -172,7 +181,7 @@ const SignUpScreen = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setSelectedGender("נקבה")
+                setSelectedGender("נקבה");
               }}
             >
               <View
@@ -210,7 +219,9 @@ const SignUpScreen = ({ navigation }) => {
               השאר אותי מחובר
             </Checkbox>
           </View>
-          <Button marginTop={5} bgColor="#3770B4" onPress={CreateUser}>שמור משתמש</Button>
+          <Button marginTop={5} bgColor="#3770B4" onPress={CreateUser}>
+            שמור משתמש
+          </Button>
           <CustomButton
             type="TERTIARY"
             text="יש משתמש קיים? לחץ כאן להתחברות"
@@ -218,11 +229,10 @@ const SignUpScreen = ({ navigation }) => {
           />
         </View>
       </ScrollView>
-      
+
       {/* <View style={{ justifyContent: "flex-end" }}>
         <Footer />
       </View> */}
-    
     </View>
   );
 };
@@ -281,7 +291,6 @@ const styles = StyleSheet.create({
   saveUserBox: {
     flexDirection: "row-reverse",
     alignSelf: "center",
-    
   },
 });
 

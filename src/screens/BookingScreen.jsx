@@ -1,20 +1,53 @@
 import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "native-base";
 import BookingDetailsComponent from "../components/BookingDetailsComponent";
 import { Datepicker } from "@ui-kitten/components";
+import axios from "axios";
 
+const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const BookingScreen = () => {
+  const [services, setServices] = useState([]);
+  const [isTreatmentPicked, setIsTreatmentPicked] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [isEmployeePicked, setIsEmployeePicked] = useState(false);
+
+  useEffect(() => {
+    getServicesInfo();
+  }, []);
+
+  const getServicesInfo = () => {
+    axios
+      .get(`${baseUrl}/Service`)
+      .then((response) => {
+        console.log(response.data);
+        setServices(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const handlePickTreatment = (service) => {
+    setServiceNumber(service.treatmentNum);
+    setIsTreatmentPicked(true);
+    axios
+      .get(`${baseUrl}/Employee/GetByService?service=${service.treatmentNum}`)
+      .then((response) => setEmployees(response.data))
+      .catch((error) => console.log(error))
+      .finally(() => console.log(employees));
+  };
+
+  const handlePickEmployee = (employee) => {
+    setIsEmployeePicked(true);
+  };
+
   return (
-    <View
-      style={styles.root}
-    >
+    <View style={styles.root}>
       <View style={{ margin: 10 }}>
         <Text style={styles.title}>הזמנת תור</Text>
-        <Text style={styles.text}>
-          בחר סוג טיפול
-        </Text>
+        <Text style={styles.text}>בחר סוג טיפול</Text>
         <View
           style={{
             flexDirection: "row-reverse",
@@ -22,34 +55,48 @@ const BookingScreen = () => {
             justifyContent: "center",
           }}
         >
-          <BookingDetailsComponent text="תספורת" />
-          <BookingDetailsComponent text="החלקה" />
-          <BookingDetailsComponent text="צבע" />
+          {services.map((service, index) => (
+            <BookingDetailsComponent
+              key={index}
+              index={index}
+              text={service.treatmentType}
+              onPress={() => handlePickTreatment(service, index)}
+            />
+          ))}
         </View>
-        <Text style={styles.text}>
-          בחר עובד
-        </Text>
-        <View
-          style={{
-            flexDirection: "row-reverse",
-            flexWrap: "wrap",
-            justifyContent: "center",
-          }}
-        >
-          <BookingDetailsComponent text="יוסי" />
-          <BookingDetailsComponent text="איציק" />
-          <BookingDetailsComponent text="שלומי" />
-        </View>
-        <Text style={styles.text}>בחר תאריך</Text>
-        <View
-          style={{
-            flexDirection: "row-reverse",
-            flexWrap: "wrap",
-            justifyContent: "center",
-          }}
-        >
-          <Datepicker/>
-        </View>
+        {isTreatmentPicked && (
+          <>
+            <Text style={styles.text}>בחר עובד</Text>
+            <View
+              style={{
+                flexDirection: "row-reverse",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
+            >
+              {employees.map((employee, index) => (
+                <BookingDetailsComponent
+                  key={index}
+                  index={index}
+                  text={`${employee.firstName} ${employee.lastName}`}
+                  onPress={() => {handlePickEmployee(employee)}}
+                />
+              ))}
+            </View>
+          </>
+        )}
+        {isEmployeePicked && (
+          <>
+            <Text style={styles.text}>בחר תאריך</Text>
+            <View
+              style={{
+                flexDirection: "row-reverse",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
+            ></View>
+          </>
+        )}
         <Text style={styles.text}>בחר שעה</Text>
         <View
           style={{
@@ -62,8 +109,12 @@ const BookingScreen = () => {
           <BookingDetailsComponent text="19:00" />
           <BookingDetailsComponent text="20:00" />
         </View>
-        <Text style={{alignSelf: "center", marginTop: 50, marginBottom: 10}}>אין תור פנוי?</Text>
-        <Button width="60%" alignSelf="center" backgroundColor="#3770B4">לחץ כאן לרשימת המתנה</Button>
+        <Text style={{ alignSelf: "center", marginTop: 50, marginBottom: 10 }}>
+          אין תור פנוי?
+        </Text>
+        <Button width="60%" alignSelf="center" backgroundColor="#3770B4">
+          לחץ כאן לרשימת המתנה
+        </Button>
       </View>
     </View>
   );
@@ -74,19 +125,19 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     backgroundColor: "white",
-    padding: 10
+    padding: 10,
   },
   title: {
     fontSize: 30,
     fontWeight: "bold",
     alignSelf: "center",
-    marginBottom: 30
+    marginBottom: 30,
   },
   text: {
     alignSelf: "flex-end",
     marginBottom: 10,
-    fontWeight: "bold"
-  }
+    fontWeight: "bold",
+  },
 });
 
 export default BookingScreen;

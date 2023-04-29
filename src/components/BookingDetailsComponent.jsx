@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 
-const BookingDetailsComponent = ({text, onPress}) => {
+const BookingDetailsComponent = ({text, onPress, index}) => {
   return (
-    <TouchableOpacity onPRess={onPress}>
+    <TouchableOpacity key={index} onPress={onPress}>
       <View style={styles.container}>
         <Text>{text}</Text>
       </View>
