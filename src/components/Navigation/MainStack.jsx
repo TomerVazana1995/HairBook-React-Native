@@ -52,8 +52,8 @@ const MainStack = () => {
     const Stack = createNativeStackNavigator();
     return (
       <Stack.Navigator initialRouteName="shop">
-        <Stack.Screen name="shop" component={ShopScreen}/>
-        <Stack.Screen name="liked products" component={LikedProductsScreen}/>
+        <Stack.Screen name="shop" component={ShopScreen} options={{title: "המוצרים שלנו"}}/>
+        <Stack.Screen name="liked products" component={LikedProductsScreen} options={{title: "מוצרים שאהבת"}}/>
       </Stack.Navigator>
     )
   }
@@ -104,12 +104,11 @@ const MainStack = () => {
         <Drawer.Screen
           name="חנות מוצרים"
           component={ShopNavigator}
-          initialParams={{likedProducts: []}}
           options={({navigation}) => ({
             drawerIcon: () => <FontAwesome5 name="store" size={17} />,
             drawerLabelStyle: { textAlign: "right", fontSize: 17 },
             headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.navigate("Liked products")}>
+              <TouchableOpacity onPress={() => navigation.navigate("liked products")}>
                 <MaterialCommunityIcons
                   style={{ marginLeft: 10 }}
                   size={25}

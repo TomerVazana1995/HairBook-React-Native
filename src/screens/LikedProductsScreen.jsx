@@ -1,27 +1,46 @@
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import React, {useState, useContext, useEffect} from "react";
+import React, { useState, useContext, useEffect, useLayoutEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 
 const LikedProductsScreen = () => {
-
   const [likedProducts, setLikedProducts] = useState([]);
- 
+  const [productsExists, setProductsExists] = useState(false);
+
+  const isFocused = useIsFocused();
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerSearchBarOptions: {
+        placeholder: "חיפוש",
+        onChangeText: (event) => console.log(event.target.value),
+      },
+    });
+  }, [navigation]);
+
   useEffect(() => {
-    getLikedProducts();
-  },[])
+    getLikedProducts()   
+  }, [isFocused]);
+
+  const handleFilter = (searchTerm) => {
+    setLikedProducts(
+      likedProducts.filter((product) => product.productName.includes(searchTerm))
+    );
+  };
 
   const getLikedProducts = async () => {
-    try {
-      await AsyncStorage.getItem("likedProducts").then((likedProducts) => {
-        console.log(likedProducts);
-        setLikedProducts(likedProducts);
-      }).catch((error) => console.log(error))
-      return likedProducts
-    } catch (error) {
-      console.log(error)
-    }
-  }
+    await AsyncStorage.getItem("likedProducts", (err, result) => {
+      if (result) {
+        result = JSON.parse(result);
+        setLikedProducts(result);
+        setProductsExists(true);
+      }
+    }).catch((error) => {
+      console.log("the error is:", error);
+    });
+  };
 
   const toggleLike = (index) => {
     console.log(productsContext.products);
@@ -42,8 +61,7 @@ const LikedProductsScreen = () => {
   return (
     <>
       <View style={styles.root}>
-        <View style={{ alignItems: "flex-end", marginVertical: 20 }}>
-          <Text style={{ fontSize: 20, fontWeight: "700" }}>מועדפים</Text>
+        <View style={{ alignItems: "flex-end", marginVertical: 20, marginTop: 70 }}>
         </View>
         <ScrollView>
           <View
@@ -53,7 +71,8 @@ const LikedProductsScreen = () => {
               justifyContent: "center",
             }}
           >
-            {likedProducts.map((product, index) => (
+            {
+              productsExists ?  likedProducts.map((product, index) => (
               <ProductCard
                 key={index}
                 image={{ uri: product.image }}
@@ -65,7 +84,9 @@ const LikedProductsScreen = () => {
                 amount={product.amount}
                 onPickDate={() => {}}
               />
-            ))}
+            )) : <Text>nothing</Text>
+            }
+           
           </View>
         </ScrollView>
       </View>

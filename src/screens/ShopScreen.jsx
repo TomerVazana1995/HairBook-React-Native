@@ -1,19 +1,17 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import React, {
-  useEffect,
-  useState,
-  useLayoutEffect,
-} from "react";
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFonts } from "expo-font";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const ShopScreen = () => {
-
   const [products, setProducts] = useState([]);
+  const [likedProducts, setLikedProducts] = useState([]);
+  const [alreadyLiked, setAlreadyLiked] = useState(false);
 
   const navigation = useNavigation();
 
@@ -21,8 +19,8 @@ const ShopScreen = () => {
     navigation.setOptions({
       headerSearchBarOptions: {
         placeholder: "חיפוש",
-        onChangeText : (event) => handleFilter(event.nativeEvent.text)
-      }
+        onChangeText: (event) => handleFilter(event.nativeEvent.text),
+      },
     });
   }, [navigation]);
 
@@ -46,7 +44,7 @@ const ShopScreen = () => {
         setProducts(productsWithLikedAndDate);
       })
       .then(function () {
-        console.log(products);
+        console.log("Products:" ,products);
       })
       .catch(function (error) {
         // handle error
@@ -56,64 +54,46 @@ const ShopScreen = () => {
 
   const handleFilter = (searchTerm) => {
     setProducts(
-      products.filter((product) =>
-        product.productName.includes(searchTerm)
-      )
+      products.filter((product) => product.productName.toUpperCase().includes(searchTerm.toUpperCase()))
     );
   };
 
-  //need to fix!!!!!
-  // async function handleLikeProduct(index) {
-  //   const product = products[index];
-  //   console.log("products number:", product.productNum);
-  //   await AsyncStorage.getItem("likedProducts")
-  //     .then((likedProducts) => {
-  //       console.log("products already liked:", JSON.parse(likedProducts));
-  //       let newLikedProducts = [];
-  //       newLikedProducts.push(JSON.parse(likedProducts));
-  //       console.log("this is new liked products", newLikedProducts);
-
-  //       if (newLikedProducts) {
-  //         const existingProduct = newLikedProducts.find((p) => {
-  //           p.productNum === product.productNum, console.log("this is p", p);
-  //         });
-  //         console.log(existingProduct);
-  //         if (!existingProduct) {
-  //           newLikedProducts.push(product);
-  //           AsyncStorage.setItem(
-  //             "likedProducts",
-  //             JSON.stringify(newLikedProducts)
-  //           )
-  //             .then(() => {
-  //               console.log("Product added to likedProducts:", product);
-  //             })
-  //             .catch((error) => console.log(error));
-  //         } else {
-  //           console.log("Product already exists in likedProducts:", product);
-  //         }
-  //       } else {
-  //         AsyncStorage.setItem("likedProducts", JSON.stringify(product))
-  //           .then(() => {
-  //             console.log("product saved");
-  //           })
-  //           .catch((error) => console.log(error));
-  //       }
-  //     })
-  //     .catch((error) => console.log("the error is", error));
-  // }
-
-  const checkIfProductsExist = async () => {
+  const handleLikeProduct = async (product) => {
     try {
-      const existingProducts = await AsyncStorage.getItem("likedProducts");
-      let likedProducts = JSON.parse(existingProducts);
-      if (!existingProducts) likedProducts = [];
-      return likedProducts;
+      const result = await AsyncStorage.getItem("likedProducts");
+      console.log("result:", result);
+      let likedProducts = [];
+      if (result !== null) {
+        likedProducts = JSON.parse(result);
+        console.log("parsed result:", likedProducts);
+        likedProducts.map((likedProduct) => {
+          if (likedProduct.productNum === product.productNum) {
+            setAlreadyLiked(true);
+            Alert.alert(
+              "This product is already on your favorites!",
+              undefined,
+              () => {
+                setAlreadyLiked(false);
+              }
+            );
+            return;
+          }
+        });
+      } else {
+        likedProducts.push(product);
+        await AsyncStorage.setItem(
+          "likedProducts",
+          JSON.stringify(likedProducts)
+        );
+        setLikedProducts(likedProducts);
+      }
+
     } catch (error) {
-      console.log(error);
+      console.log("Error: ", error);
     }
   };
 
- 
+
   const toggleDate = (date, index) => {
     setProducts((prevProducts) =>
       prevProducts.map((product, i) =>
@@ -122,11 +102,8 @@ const ShopScreen = () => {
     );
   };
 
- 
-
   return (
-    
-    <ScrollView style={{backgroundColor: "white"}}>
+    <ScrollView style={{ backgroundColor: "white" }}>
       <View style={styles.root}>
         <View style={{ alignItems: "flex-end", marginVertical: 20 }}></View>
         <View
@@ -148,14 +125,13 @@ const ShopScreen = () => {
               amount={product.amount}
               onPickDate={(date) => toggleDate(date, index)}
               onPress={() => {
-                handleLikeProduct(index);
+                handleLikeProduct(product, index);
               }}
             />
           ))}
         </View>
       </View>
     </ScrollView>
-   
   );
 };
 

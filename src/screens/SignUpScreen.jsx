@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
-import React, { useContext, useState, useRef, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import PickImageComponent from "../components/PickImageComponent";

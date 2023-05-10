@@ -16,6 +16,7 @@ import axios from "axios";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 
+
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 Notifications.setNotificationHandler({

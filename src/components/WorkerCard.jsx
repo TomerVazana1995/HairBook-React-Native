@@ -47,7 +47,7 @@ const WorkerCard = () => {
   return (
     <>
       {employees.map((employee, index) => (
-        <TouchableOpacity key={index}>
+        <TouchableOpacity style={{width: "70%"}} key={index}>
           <Animated.View
             style={[
               styles.container,
@@ -59,8 +59,8 @@ const WorkerCard = () => {
               size="lg"
               marginLeft={5}
             />
-            <View>
-            <Text style={{ fontSize: 20}}>{employee.firstName} {employee.lastName}</Text>
+            <View style={{flex: 1}}>
+            <Text style={{ fontSize: 20, alignSelf: "center"}}>{employee.firstName} {employee.lastName}</Text>
             </View>
           </Animated.View>
         </TouchableOpacity>
@@ -85,7 +85,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     marginVertical: 15,
     elevation: 15,
-    textAlign: "center"
+    textAlign: "center",
+    justifyContent: "space-between"
   },
 });
 

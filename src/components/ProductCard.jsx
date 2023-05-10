@@ -14,6 +14,7 @@ import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import DatePicker from "react-native-modern-datepicker";
 import { ProductsContext } from "../context/context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -28,21 +29,13 @@ const ProductCard = ({
   Liked,
   date,
   onPickDate,
+  product,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   // const [selectedProduct, setSelectedProduct] = useState("");
   const [productAmount, setProductAmount] = useState(0);
   const [datePickerVisivle, setDatePickerVisible] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-
-  const handleLike = () => {
-    if(isLiked) {
-      alert("Product already liked")
-    }
-    else {
-      setIsLiked(true);
-    }
-  }
 
   return (
     <View style={styles.root} key={index}>
@@ -61,34 +54,53 @@ const ProductCard = ({
           )}
         </View>
       </TouchableOpacity>
-      <Text
-        style={{
-          alignSelf: "center",
-          fontWeight: "bold",
-          marginVertical: 5,
-          textAlign: "center",
-        }}
-      >
-        {name}
-      </Text>
+      <Text style={styles.name}>{name}</Text>
       <View
         style={{
           backgroundColor: "transparent",
           alignItems: "center",
-          paddingBottom: 20,
         }}
       >
         <Image style={styles.image} source={image} resizeMode="contain" />
       </View>
       <View style={{ flex: 2, alignItems: "center" }}>
-        <Text>מחיר: {price} ש"ח</Text>
-        <Text style={{ padding: 10 }}>כמות במלאי: {amount}</Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <View style={{ alignItems: "center" }}>
-            <AntDesign name="shoppingcart" size={20} />
-            <Text>הזמן מוצר</Text>
+        <View
+          style={{
+            width: "100%",
+            alignSelf: "baseline",
+            alignItems: "flex-end",
+            flex: 1,
+          }}
+        >
+          <View
+            style={{
+              flex: 1,
+              alignItems: "center",
+              backgroundColor: "#EDEDED",
+              width: "100%",
+              justifyContent: "center",
+              alignSelf: "baseline",
+              textAlign: "center",
+              bottom: 0,
+            }}
+          >
+            <Text style={styles.price}>מחיר: {price} ש"ח</Text>
+            <Text style={styles.amount}>כמות במלאי: {amount}</Text>
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)}
+              style={{
+                width: "100%",
+                flex: 1,
+                justifyContent: "flex-end",
+              }}
+            >
+              <View style={styles.cartButton}>
+                <AntDesign color="white" name="shoppingcart" size={20} />
+                <Text style={styles.cartButtonText}>הזמן מוצר</Text>
+              </View>
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
         <Modal
           key={index}
           backdropVisible={false}
@@ -157,7 +169,7 @@ const ProductCard = ({
                         height: 30,
                         marginHorizontal: 10,
                         justifyContent: "center",
-                        alignItems: "center",
+                        alignItems: "center"
                       }}
                     >
                       <Text style={{ fontWeight: "bold" }}>
@@ -207,18 +219,47 @@ const styles = StyleSheet.create({
     shadowOffset: { height: 1 },
     shadowOpacity: 1,
     shadowColor: "grey",
-    borderRadius: 10,
-    paddingBottom: 5,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: "#CDCDCD",
-    elevation: 5,
-    width: "40%",
+    width: "43%",
   },
   image: {
     backgroundColor: "transparent",
     width: "45%",
     height: undefined,
     aspectRatio: 1,
+  },
+  name: {
+    alignSelf: "center",
+    fontWeight: "bold",
+    textAlign: "center",
+    fontSize: 13,
+  },
+  price: {
+    fontSize: 14,
+    color: "#555",
+  },
+  amount: {
+    fontSize: 14,
+    color: "#555",
+  },
+  cartButton: {
+    alignItems: "center",
+    backgroundColor: "#4f8fc6",
+    paddingVertical: 5,
+    width: "100%",
+  },
+  cartButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  modal: {
+    borderWidth: 1,
+    borderColor: "#CDCDCD",
+    backgroundColor: "white",
+    width: "90%",
   },
 });
 
