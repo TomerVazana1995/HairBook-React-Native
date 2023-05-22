@@ -1,17 +1,20 @@
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import React, { useEffect, useState, useLayoutEffect } from "react";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import React, { useEffect, useState, useLayoutEffect, useContext } from "react";
 import axios from "axios";
 import ProductCard from "../components/ProductCard";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFonts } from "expo-font";
+import { UserContext } from "../context/context";
+import { Datepicker } from "@ui-kitten/components";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const ShopScreen = () => {
   const [products, setProducts] = useState([]);
-  const [likedProducts, setLikedProducts] = useState([]);
-  const [alreadyLiked, setAlreadyLiked] = useState(false);
+  const [productAmount, setProductAmount] = useState(0);
+  const [pickUpDate, setPickUpDate] = useState(new Date());
+
+  const { user } = useContext(UserContext);
 
   const navigation = useNavigation();
 
@@ -31,7 +34,7 @@ const ShopScreen = () => {
   //get all the products when the page is first rendered
   const getProductsDetails = () => {
     axios
-      .get(`${baseUrl}/Product`)
+      .get(`${baseUrl}/Product?hairSalonId=${user.hairSalonId}`)
       .then(function (response) {
         // handle success
         console.log(response.data);
@@ -44,18 +47,24 @@ const ShopScreen = () => {
         setProducts(productsWithLikedAndDate);
       })
       .then(function () {
-        console.log("Products:" ,products);
+        console.log("Products:", products);
       })
       .catch(function (error) {
         // handle error
         console.log(error);
-      });
+      })
   };
 
   const handleFilter = (searchTerm) => {
     setProducts(
-      products.filter((product) => product.productName.toUpperCase().includes(searchTerm.toUpperCase()))
+      products.filter((product) =>
+        product.productName.toUpperCase().includes(searchTerm.toUpperCase())
+      )
     );
+  };
+
+  const onClose = () => {
+    setProductAmount(0);
   };
 
   const handleLikeProduct = async (product) => {
@@ -63,36 +72,30 @@ const ShopScreen = () => {
       const result = await AsyncStorage.getItem("likedProducts");
       console.log("result:", result);
       let likedProducts = [];
-      if (result !== null) {
+      if (result) {
         likedProducts = JSON.parse(result);
         console.log("parsed result:", likedProducts);
-        likedProducts.map((likedProduct) => {
+        for (let i = 0; i < likedProducts.length; i++) {
+          const likedProduct = likedProducts[i];
           if (likedProduct.productNum === product.productNum) {
-            setAlreadyLiked(true);
             Alert.alert(
               "This product is already on your favorites!",
-              undefined,
-              () => {
-                setAlreadyLiked(false);
-              }
+              undefined
             );
-            return;
+            return; // Stop the execution of handleLikeProduct
           }
-        });
-      } else {
-        likedProducts.push(product);
-        await AsyncStorage.setItem(
-          "likedProducts",
-          JSON.stringify(likedProducts)
-        );
-        setLikedProducts(likedProducts);
+        }
       }
-
+      likedProducts.push(product);
+      console.log("after push:", likedProducts);
+      await AsyncStorage.setItem(
+        "likedProducts",
+        JSON.stringify(likedProducts)
+      );
     } catch (error) {
       console.log("Error: ", error);
     }
   };
-
 
   const toggleDate = (date, index) => {
     setProducts((prevProducts) =>
@@ -102,8 +105,26 @@ const ShopScreen = () => {
     );
   };
 
+  const orderProduct = (product) => {
+    axios
+      .put(
+        `${baseUrl}/Product/UpdateNOrderProduct?id=${product.productNum}&phoneNum=${user.phoneNum}&amount=${productAmount}&date=2023-05-17T10%3A52%3A39.527Z&hairSalonId=${user.hairSalonId}`,
+        {
+          id: product.productNum,
+          phoneNum: user.phoneNum,
+          amount: productAmount,
+          date: pickUpDate,
+          hairSalonId: user.hairSalonId,
+        }
+      )
+      .then((response) => {Alert.alert(`מספר ההזמנה שלך הוא ${response.data}`)})
+      .catch((error) =>
+        console.log("there was an error ordering the product", error)
+      )
+  };
+
   return (
-    <ScrollView style={{ backgroundColor: "white" }}>
+    <ScrollView style={{ backgroundColor: "#f8f8f8" }}>
       <View style={styles.root}>
         <View style={{ alignItems: "flex-end", marginVertical: 20 }}></View>
         <View
@@ -115,7 +136,7 @@ const ShopScreen = () => {
         >
           {products.map((product, index) => (
             <ProductCard
-              key={index}
+              key={product.productNum}
               index={index}
               image={{ uri: product.image }}
               price={product.price}
@@ -127,6 +148,18 @@ const ShopScreen = () => {
               onPress={() => {
                 handleLikeProduct(product, index);
               }}
+              trash={false}
+              onPressOrder={() => orderProduct(product)}
+              pickUpDate={pickUpDate}
+              onSelectDate={(date) => setPickUpDate(date)}
+              onPressDiffAmount={() => {
+                productAmount === 0
+                  ? null
+                  : setProductAmount(productAmount - 1);
+              }}
+              onPressAddAmount={() => setProductAmount(productAmount + 1)}
+              orderAmount={productAmount}
+              onClose={() => setProductAmount(0)}
             />
           ))}
         </View>
@@ -139,7 +172,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#f8f8f8",
     marginTop: 50,
   },
   title: {

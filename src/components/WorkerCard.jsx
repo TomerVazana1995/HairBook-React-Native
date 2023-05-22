@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, Animated } from "react-native";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import { Avatar } from "native-base";
 import { TouchableOpacity } from "react-native";
 import axios from "axios";
+import { UserContext } from "../context/context";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -10,9 +11,11 @@ const WorkerCard = () => {
   const animation = useRef(new Animated.Value(0)).current;
   const [employees, setEmployees] = useState([]);
 
+  const { user } = useContext(UserContext);
+
   const getAllEmployees = () => {
     axios
-      .get(`${baseUrl}/Employee/GetAllEmployees`)
+      .get(`${baseUrl}/Employee/GetAllEmployees?hairSalonId=${user.hairSalonId}`)
       .then(function (response) {
         console.log(response.data);
         setEmployees(response.data);

@@ -103,6 +103,7 @@ const MapComponent = () => {
         initialRegion={INITIAL_POSITION}
         provider={PROVIDER_GOOGLE}
       >
+        <Marker coordinate={{latitude: 32.176711, longitude: 34.901208}}/>
         {origin && <Marker coordinate={origin} />}
         {destination && <Marker coordinate={destination} />}
         {showDirections && origin && destination &&

@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import PickImageComponent from "../components/PickImageComponent";
@@ -18,6 +18,7 @@ import { FormControl, ScrollView, Checkbox, Button } from "native-base";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
+import { Dropdown } from "react-native-element-dropdown";
 
 const SignUpScreen = () => {
   const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
@@ -33,7 +34,17 @@ const SignUpScreen = () => {
   const [selectedGender, setSelectedGender] = useState("");
   const [isChecked, setIsChecked] = useState(false);
 
+  const [hairSalons, setHairSalons] = useState([]);
+  const [selectedHairSalon, setSelectedHairSalon] = useState(null)
+
+  const [isOpen, setIsOpen] = useState(false);
+
   const min = new Date(1, 1, 1990);
+
+  useEffect(() => {
+    getAllHairSalon()
+
+  },[])
 
   //if checkbox is checked save the phone number and logged in
   const saveUserLoggedIn = async () => {
@@ -83,6 +94,25 @@ const SignUpScreen = () => {
       });
     saveUserLoggedIn();
   };
+
+  const getAllHairSalon = () => {
+    axios
+    .get(`${baseUrl}/HairSalon/GetAllHairSalons`)
+    .then((response) => {console.log(response.data)})
+    .catch((error) => {console.log("the error:", error)})
+  }
+
+  const renderLabel = () => {
+    if (selectedCountry || isOpen) {
+      return (
+        <Text style={[styles.label, isFocus && { color: "orange" }]}>
+          Country
+        </Text>
+      );
+    }
+    return null;
+  };
+
 
   return (
     <View style={styles.wraper}>
@@ -138,6 +168,33 @@ const SignUpScreen = () => {
                 accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
                 keyboardType="number-pad"
               />
+ <View style={styles.dropdownContainer}>
+              {renderLabel()}
+              <Dropdown
+                style={[styles.dropdown, isOpen && { borderColor: "orange" }]}
+                data={hairSalons}
+                maxHeight={300}
+                search
+                searchPlaceholder="search"
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                placeholder={!isFocus ? "Select country" : "..."}
+                labelField="lable"
+                valueField="value"
+                onFocus={() => setIsOpen(true)}
+                onBlur={() => setIsOpen(false)}
+                value={selectedCountry}
+                onChange={(item) => handleCountryChange(item)}
+                renderLeftIcon={() => (
+                  <AntDesign
+                    style={styles.icon}
+                    color="black"
+                    name="Safety"
+                    size={20}
+                  />
+                )}
+              />
+            </View>
               <FormControl.HelperText alignSelf="flex-end">
                 *נא הזן מספר טלפון בעל 10 ספרות
               </FormControl.HelperText>
@@ -291,6 +348,25 @@ const styles = StyleSheet.create({
   saveUserBox: {
     flexDirection: "row-reverse",
     alignSelf: "center",
+  },
+  dropdown: {
+    height: 50,
+    borderColor: "#e8e8e8",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 8,
+  },
+  dropdownContainer: {
+    backgroundColor: "white",
+    paddingVertical: 16,
+    width: "100%",
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: "lightgrey",
   },
 });
 

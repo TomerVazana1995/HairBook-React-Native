@@ -8,15 +8,28 @@ import { UserContext } from "../context/context";
 import * as Notifications from "expo-notifications";
 import NavigationImage from "../images/navigate.png";
 import DatePicker from "react-native-modern-datepicker";
+import Logo from "../../assets/logo2.png";
+import axios from "axios";
+import NextQueue from "../components/NextQueue";
+
+const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
 
+  const { user } = useContext(UserContext);
+  const [futureQueues, setFutureQueues] = useState([]);
+  const [date, setDate] = useState(null);
+  const [time, setTime] = useState(null);
+
   //notifications
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [notification, setNotification] = useState(false);
-  const notificationListener = useRef();
-  const responseListener = useRef();
+  // const [expoPushToken, setExpoPushToken] = useState("");
+  // const [notification, setNotification] = useState(false);
+  // const notificationListener = useRef();
+  // const responseListener = useRef();
+
+  // const { user, sendPushNotification, registerForPushNotificationsAsync } =
+  // useContext(UserContext);
 
   //   useEffect(() => {
 
@@ -45,8 +58,18 @@ const HomeScreen = () => {
 
   // }, []);
 
-  const { user, sendPushNotification, registerForPushNotificationsAsync } =
-    useContext(UserContext);
+  useEffect(() => {
+    getFutureQueues();
+  }, []);
+
+  const getFutureQueues = async () => {
+   await axios
+      .get(
+        `${baseUrl}/Queue/GetQueuesByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
+      )
+      .then((response) => {console.log(response.data),setFutureQueues(response.data), setDate(response.data[0].date), setTime(response.data[0].startTime)})
+      .catch((error) => console.log("this is the error", error))
+  };
 
   const data = [
     {
@@ -62,7 +85,7 @@ const HomeScreen = () => {
 
   return (
     <View
-      style={{ backgroundColor: "white", flex: 1, flexDirection: "column" }}
+      style={{ backgroundColor: "#f8f8f8", flex: 1, flexDirection: "column" }}
     >
       <View style={{ width: "100%", alignItems: "center" }}>
         <View
@@ -86,6 +109,7 @@ const HomeScreen = () => {
       <View style={{ marginBottom: 30 }}>
         <CustomCarusel data={data} />
       </View>
+      <NextQueue date={date} time={time}/>
       <View style={styles.navigationContainer}>
         <Image
           style={styles.image}
@@ -131,7 +155,7 @@ const styles = StyleSheet.create({
   },
   navigationContainer: {
     flex: 1,
-    justifyContent: "flex-end"
+    justifyContent: "flex-end",
   },
   image: {
     aspectRatio: 1,

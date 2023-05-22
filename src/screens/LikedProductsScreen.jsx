@@ -1,4 +1,10 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useContext, useEffect, useLayoutEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -15,18 +21,20 @@ const LikedProductsScreen = () => {
     navigation.setOptions({
       headerSearchBarOptions: {
         placeholder: "חיפוש",
-        onChangeText: (event) => console.log(event.target.value),
+        onChangeText: (event) => handleFilter(event.nativeEvent.text),
       },
     });
   }, [navigation]);
 
   useEffect(() => {
-    getLikedProducts()   
-  }, [isFocused]);
+    getLikedProducts();
+  }, [isFocused, likedProducts]);
 
   const handleFilter = (searchTerm) => {
     setLikedProducts(
-      likedProducts.filter((product) => product.productName.includes(searchTerm))
+      likedProducts.filter((product) =>
+        product.productName.toUpperCase().includes(searchTerm.toUpperCase())
+      )
     );
   };
 
@@ -42,13 +50,18 @@ const LikedProductsScreen = () => {
     });
   };
 
-  const toggleLike = (index) => {
-    console.log(productsContext.products);
-    setProducts((prevProducts) =>
-      prevProducts.map((product, i) =>
-        i === index ? { ...product, liked: !product.liked } : product
-      )
-    );
+  const handleDeleteProduct = async (product) => {
+    try {
+      const result = await AsyncStorage.getItem("likedProducts");
+      console.log(result)
+      let likedProducts = [];
+      likedProducts = JSON.parse(result);
+      let newLikedProducts = likedProducts.filter(
+        (likedProduct) => likedProduct.productName !== product.productName
+      );
+      setLikedProducts(newLikedProducts);
+      await AsyncStorage.setItem("likedProducts", JSON.stringify(newLikedProducts));
+    } catch (error) { console.log(error)}
   };
 
   const toggleDate = (date, index) => {
@@ -61,32 +74,34 @@ const LikedProductsScreen = () => {
   return (
     <>
       <View style={styles.root}>
-        <View style={{ alignItems: "flex-end", marginVertical: 20, marginTop: 70 }}>
-        </View>
-        <ScrollView>
+        <ScrollView style={{ marginTop: 100 }}>
           <View
             style={{
               flexDirection: "row",
               flexWrap: "wrap",
               justifyContent: "center",
+              width: "100%",
             }}
           >
-            {
-              productsExists ?  likedProducts.map((product, index) => (
-              <ProductCard
-                key={index}
-                image={{ uri: product.image }}
-                price={product.price}
-                date={product.date}
-                onPressLike={() => {}}
-                name={product.productName}
-                description={product.description}
-                amount={product.amount}
-                onPickDate={() => {}}
-              />
-            )) : <Text>nothing</Text>
-            }
-           
+            {productsExists ? (
+              likedProducts.map((product, index) => (
+                <ProductCard
+                  key={index}
+                  image={{ uri: product.image }}
+                  price={product.price}
+                  date={product.date}
+                  onPressLike={() => {}}
+                  name={product.productName}
+                  description={product.description}
+                  amount={product.amount}
+                  onPickDate={() => {}}
+                  trash={true}
+                  onPressDelete={() => handleDeleteProduct(product)}
+                />
+              ))
+            ) : (
+              <Text>nothing</Text>
+            )}
           </View>
         </ScrollView>
       </View>
@@ -98,11 +113,14 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#f8f8f8",
   },
   title: {
     fontWeight: "bold",
     fontSize: 30,
+  },
+  productContainer: {
+    width: "100%",
   },
 });
 

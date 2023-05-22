@@ -1,13 +1,16 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { SocialIcon } from "@rneui/themed";
 import axios from "axios";
 import * as Linking from "expo-linking";
+import { UserContext } from "../context/context";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const Footer = () => {
   const [details, setDetails] = useState({});
+
+  const {user} = useContext(UserContext);
 
   const openFacebookUrl = async () => {
     try {
@@ -26,7 +29,7 @@ const Footer = () => {
   const getBuisinessDetails = () => {
     //the business details
     axios
-      .get(`${baseUrl}/HairSalon/getHairSalonInfo`)
+      .get(`${baseUrl}/HairSalon/getHairSalonInfo?hairSalonId=${user.hairSalonId}`)
       .then((response) => {
         setDetails(response.data);
       })

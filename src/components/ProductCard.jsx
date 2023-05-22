@@ -1,20 +1,9 @@
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  useWindowDimensions,
-  TouchableOpacity,
-  ScrollView,
-  Pressable,
-} from "react-native";
-import React, { useState, useEffect, useContext } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
 import { Modal, Button } from "native-base";
-import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
-import DatePicker from "react-native-modern-datepicker";
-import { ProductsContext } from "../context/context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Entypo } from "@expo/vector-icons";
+import { Datepicker, Layout } from "@ui-kitten/components";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -30,30 +19,49 @@ const ProductCard = ({
   date,
   onPickDate,
   product,
+  trash,
+  onPressDelete,
+  onSelectDate,
+  pickUpDate,
+  onPressAddAmount,
+  onPressDiffAmount,
+  onClose,
+  orderAmount,
+  onPressOrder,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   // const [selectedProduct, setSelectedProduct] = useState("");
   const [productAmount, setProductAmount] = useState(0);
-  const [datePickerVisivle, setDatePickerVisible] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [datePick, setDatePick] = useState(new Date());
+
+  function closeModal() {
+    setModalVisible(false);
+  }
+
+  //צריך להוסיף צבע אדום לאייקון לאחר שמשתמש אהב את המוצר, לבדוק אם המוצר קיים בזיכרון הלוקלי אם כן לרנדר את האייקון בצבע אדום לפני
 
   return (
-    <View style={styles.root} key={index}>
-      <TouchableOpacity onPress={onPress}>
-        <View
-          style={{
-            alignItems: "flex-end",
-            paddingRight: 10,
-            paddingTop: 10,
-          }}
-        >
+    <View style={styles.root}>
+      <View
+        style={{
+          justifyContent: "space-between",
+          padding: 10,
+          flexDirection: "row-reverse",
+        }}
+      >
+        <TouchableOpacity onPress={onPress}>
           {isLiked ? (
             <AntDesign name="heart" size={15} color="red" />
           ) : (
             <AntDesign name="hearto" size={15} />
           )}
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onPressDelete}>
+          {trash ? <Entypo name="trash" size={15} /> : null}
+        </TouchableOpacity>
+      </View>
+
       <Text style={styles.name}>{name}</Text>
       <View
         style={{
@@ -82,6 +90,8 @@ const ProductCard = ({
               alignSelf: "baseline",
               textAlign: "center",
               bottom: 0,
+              borderBottomLeftRadius: 5,
+              borderBottomRightRadius: 5,
             }}
           >
             <Text style={styles.price}>מחיר: {price} ש"ח</Text>
@@ -105,11 +115,7 @@ const ProductCard = ({
           key={index}
           backdropVisible={false}
           isOpen={modalVisible}
-          onClose={() => {
-            setModalVisible(false),
-              setProductAmount(0),
-              setDatePickerVisible(false);
-          }}
+          onClose={onClose}
           avoidKeyboard
           justifyContent="center"
           bottom="4"
@@ -119,90 +125,61 @@ const ProductCard = ({
             borderWidth={1}
             borderColor="#CDCDCD"
             backgroundColor="white"
-            width="90%"
+            width="70%"
           >
-            <Modal.CloseButton />
+            <Modal.CloseButton onPress={closeModal} />
             <Modal.Header
               alignSelf="center"
               backgroundColor="white"
               width="100%"
               alignItems="center"
             >
-              {!datePickerVisivle ? name : "בחר תאריך לאסוף את המוצר"}
+              {name}
             </Modal.Header>
             <Modal.Body alignItems="center">
-              {!datePickerVisivle ? (
-                <>
-                  <Image
-                    style={styles.image}
-                    source={image}
-                    resizeMode="contain"
-                  />
-                  <View>
-                    <Text>{description}</Text>
-                    <Text style={{ textAlign: "center" }}>
-                      מחיר: {price} ש"ח ליחידה
-                    </Text>
-                  </View>
-                  <Text style={{ marginTop: 10 }}>כמות</Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <TouchableOpacity
-                      onPress={() => {
-                        productAmount === 0
-                          ? null
-                          : setProductAmount(productAmount - 1);
-                      }}
-                    >
-                      <AntDesign name="minus" size={20} />
-                    </TouchableOpacity>
-                    <View
-                      style={{
-                        borderRadius: 5,
-                        borderWidth: 2,
-                        width: 30,
-                        height: 30,
-                        marginHorizontal: 10,
-                        justifyContent: "center",
-                        alignItems: "center"
-                      }}
-                    >
-                      <Text style={{ fontWeight: "bold" }}>
-                        {productAmount}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      onPress={() => setProductAmount(productAmount + 1)}
-                    >
-                      <AntDesign name="plus" size={20} />
-                    </TouchableOpacity>
-                  </View>
-                </>
-              ) : (
+              <Image style={styles.image} source={image} resizeMode="contain" />
+              <View>
+                <Text style={{ textAlign: "center", fontWeight: 500 }}>
+                  {description}
+                </Text>
+                <Text style={{ textAlign: "center", fontWeight: 500 }}>
+                  מחיר: {price} ש"ח ליחידה
+                </Text>
+              </View>
+              <Text style={{ marginTop: 10 }}>כמות</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <TouchableOpacity onPress={onPressDiffAmount}>
+                  <AntDesign name="minus" size={20} />
+                </TouchableOpacity>
                 <View
                   style={{
-                    width: "100%",
-                    height: "100%",
+                    borderRadius: 5,
+                    borderWidth: 2,
+                    width: 30,
+                    height: 30,
+                    marginHorizontal: 10,
+                    justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
-                  <DatePicker mode="calendar" onDateChange={onPickDate} />
-                  <Text>{date}</Text>
+                  <Text style={{ fontWeight: "bold" }}>{orderAmount}</Text>
                 </View>
-              )}
+                <TouchableOpacity onPress={onPressAddAmount}>
+                  <AntDesign name="plus" size={20} />
+                </TouchableOpacity>
+              </View>
+              <Text>בחר תאריך לאסוף את המוצר</Text>
+              <Datepicker date={pickUpDate} onSelect={onSelectDate} />
             </Modal.Body>
             <Modal.Footer justifyContent="center">
-              <Button
-                bgColor="#3770B4"
-                width="80%"
-                onPress={() => setDatePickerVisible(!datePickerVisivle)}
-              >
-                {datePickerVisivle ? "בחר תאריך" : "הזמן מוצר"}
+              <Button bgColor="#3770B4" width="80%" onPress={onPressOrder}>
+                הזמן מוצר
               </Button>
             </Modal.Footer>
           </Modal.Content>
@@ -235,20 +212,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     fontSize: 13,
+    padding: 5,
   },
   price: {
     fontSize: 14,
     color: "#555",
+    fontWeight: 600,
+    paddingTop: 5,
   },
   amount: {
     fontSize: 14,
     color: "#555",
+    fontWeight: 600,
+    paddingBottom: 5,
   },
   cartButton: {
     alignItems: "center",
     backgroundColor: "#4f8fc6",
     paddingVertical: 5,
     width: "100%",
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
   },
   cartButtonText: {
     color: "white",

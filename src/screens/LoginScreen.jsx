@@ -50,7 +50,7 @@ const LoginScreen = () => {
     axios
       .get(`${baseUrl}/Client/GetCode?phoneNum=${phoneNum}`)
       .then(function (response) {
-        console.log(response.data);
+        console.log("your otp code",response.data);
         setOTPCode(response.data);
       })
       .catch(function (error) {
@@ -74,6 +74,7 @@ const LoginScreen = () => {
             birthDate: response.data.birthDate,
             image: response.data.image,
             gender: response.data.gender,
+            hairSalonId: response.data.hairSalonId
           });
           console.log();
         }
@@ -162,6 +163,7 @@ const LoginScreen = () => {
                   onCodeFilled={(code) => {
                     if(code == OTPcode){
                       alert("code is valid");
+                      setDisabled(false);
                     }
                   }}
                   editable={true}
@@ -173,7 +175,7 @@ const LoginScreen = () => {
                 ) : (
                   <CloseIcon size="10" mt="0.5" color="red" />
                 )}
-                לא קיבל קוד אימות?
+                לא קיבלת קוד אימות?
                 <Pressable>
                   <Text
                     style={{ textDecorationLine: "underline", color: "blue" }}
@@ -187,6 +189,7 @@ const LoginScreen = () => {
                   bgColor={disabled ? "blue.300" : "#3770B4"}
                   width="80%"
                   onPress={login}
+                  disabled={disabled}
                 >
                   המשך
                 </Button>

@@ -1,15 +1,18 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { Heading, Button } from "native-base";
 import Footer from "../components/Footer";
 import axios from "axios";
+import { UserContext } from "../context/context";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const BusinessDetailsScreen = () => {
   const [details, setDetails] = useState({});
   const [workTime, setWorkTime] = useState([]);
+
+  const { user } = useContext(UserContext);
 
   const navigation = useNavigation();
 
@@ -20,7 +23,7 @@ const BusinessDetailsScreen = () => {
   const getBuisinessDetails = () => {
     //the business details
     axios
-      .get(`${baseUrl}/HairSalon/getHairSalonInfo`)
+      .get(`${baseUrl}/HairSalon/getHairSalonInfo?hairSalonId=${user.hairSalonId}`)
       .then((response) => {
         setDetails(response.data);
       })
@@ -33,7 +36,7 @@ const BusinessDetailsScreen = () => {
 
     //the businss work time
     axios
-      .get(`${baseUrl}/HairSalon/GetHairSalonWorTime`)
+      .get(`${baseUrl}/HairSalon/GetHairSalonWorkTime?hairSalonId=${user.hairSalonId}`)
       .then((response) => {
         setWorkTime(response.data);
         console.log(response.data);

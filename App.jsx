@@ -15,7 +15,9 @@ import Loading from "./src/screens/Loading";
 import axios from "axios";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
+import { registerTranslation, he } from "react-native-paper-dates";
 
+registerTranslation("he", he);
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -36,7 +38,7 @@ async function sendPushNotification(expoPushToken) {
     data: { someData: "goes here" },
   };
 
-  console.log(message)
+  console.log(message);
 
   await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
@@ -85,17 +87,16 @@ export default function App() {
   const [user, setUser] = useState({
     firstName: "",
     lastName: "",
-    phoneNum: "",
+    phoneNum: "0504483376",
     image:
       "https://e7.pngegg.com/pngimages/178/595/png-clipart-user-profile-computer-icons-login-user-avatars-monochrome-black-thumbnail.png",
     birthDate: new Date(),
     gender: "",
+    hairSalonId: 1,
     token: "KQAdpMPHXzMN23pRkqRZYZ",
   });
 
-  const [products, setProducts] = useState([]);
-  const [likedProducts, setLikedProducts] = useState([]);
-
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -115,7 +116,7 @@ export default function App() {
     getUserCredentials()
       .then(function (phoneNum) {
         console.log(phoneNum);
-        if(phoneNum) {
+        if (phoneNum) {
           axios
             .get(`${baseUrl}/Client/${phoneNum}`)
             .then(function (response) {
@@ -127,26 +128,31 @@ export default function App() {
                 birthDate: response.data.birthDate,
                 image: response.data.image,
                 gender: response.data.gender,
+                hairSalonId: response.data.hairSalonId,
               });
             })
             .catch(function (error) {
               console.log(error);
             });
-        }
-        else {
-          setUser({...user, firstName: "",
-          lastName: "",
-          phoneNum: "",
-          image:
-            "https://e7.pngegg.com/pngimages/178/595/png-clipart-user-profile-computer-icons-login-user-avatars-monochrome-black-thumbnail.png",
-          birthDate: new Date(),
-          gender: "",
-          token: "KQAdpMPHXzMN23pRkqRZYZ"})
+        } else {
+          setUser({
+            ...user,
+            firstName: "",
+            lastName: "",
+            phoneNum: "0504483376",
+            image:
+              "https://e7.pngegg.com/pngimages/178/595/png-clipart-user-profile-computer-icons-login-user-avatars-monochrome-black-thumbnail.png",
+            birthDate: new Date(),
+            gender: "",
+            hairSalonId: 1,
+            token: "KQAdpMPHXzMN23pRkqRZYZ",
+          });
         }
       })
       .catch(function (error) {
         console.log(error);
-      }).finally(() => console.log(user))
+      })
+      .finally(() => console.log(user));
   }, []);
 
   useLayoutEffect(() => {
@@ -163,32 +169,23 @@ export default function App() {
       ) : (
         <SafeAreaProvider>
           <React.Fragment>
-            <NativeBaseProvider>
-              <IconRegistry icons={EvaIconsPack} />
-              <ApplicationProvider {...eva} theme={{ ...eva.light, ...theme }}>
-                <ProductsContext.Provider
+            <IconRegistry icons={EvaIconsPack} />
+            <ApplicationProvider {...eva} theme={{ ...eva.light, ...theme }}>
+              <NativeBaseProvider>
+                <UserContext.Provider
                   value={{
-                    products,
-                    setProducts,
-                    likedProducts,
-                    setLikedProducts,
+                    user,
+                    setUser,
+                    isLoggedIn,
+                    setIsLoggedIn,
+                    sendPushNotification,
+                    registerForPushNotificationsAsync,
                   }}
                 >
-                  <UserContext.Provider
-                    value={{
-                      user,
-                      setUser,
-                      isLoggedIn,
-                      setIsLoggedIn,
-                      sendPushNotification,
-                      registerForPushNotificationsAsync,
-                    }}
-                  >
-                    <AppNavigator />
-                  </UserContext.Provider>
-                </ProductsContext.Provider>
-              </ApplicationProvider>
-            </NativeBaseProvider>
+                  <AppNavigator />
+                </UserContext.Provider>
+              </NativeBaseProvider>
+            </ApplicationProvider>
           </React.Fragment>
         </SafeAreaProvider>
       )}
