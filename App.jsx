@@ -29,12 +29,16 @@ Notifications.setNotificationHandler({
   }),
 });
 
-async function sendPushNotification(expoPushToken) {
+async function sendPushNotification(expoPushToken, action) {
+  var notificationMessage;
+  if(action === "reminder"){
+    notificationMessage = `היי זו תזכורת לתור שלך`
+  }
   const message = {
     to: expoPushToken,
     sound: "default",
     title: "HairBook",
-    body: "And here is the body!",
+    body: notificationMessage,
     data: { someData: "goes here" },
   };
 
@@ -93,7 +97,7 @@ export default function App() {
     birthDate: new Date(),
     gender: "",
     hairSalonId: 1,
-    token: "KQAdpMPHXzMN23pRkqRZYZ",
+    token: "ExponentPushToken[KQAdpMPHXzMN23pRkqRZYZ]",
   });
 
   
@@ -129,6 +133,7 @@ export default function App() {
                 image: response.data.image,
                 gender: response.data.gender,
                 hairSalonId: response.data.hairSalonId,
+                token: response.data.token
               });
             })
             .catch(function (error) {
@@ -145,7 +150,7 @@ export default function App() {
             birthDate: new Date(),
             gender: "",
             hairSalonId: 1,
-            token: "KQAdpMPHXzMN23pRkqRZYZ",
+            token: "ExponentPushToken[KQAdpMPHXzMN23pRkqRZYZ]",
           });
         }
       })

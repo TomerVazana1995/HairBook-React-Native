@@ -23,7 +23,9 @@ const BusinessDetailsScreen = () => {
   const getBuisinessDetails = () => {
     //the business details
     axios
-      .get(`${baseUrl}/HairSalon/getHairSalonInfo?hairSalonId=${user.hairSalonId}`)
+      .get(
+        `${baseUrl}/HairSalon/getHairSalonInfo?hairSalonId=${user.hairSalonId}`
+      )
       .then((response) => {
         setDetails(response.data);
       })
@@ -34,22 +36,43 @@ const BusinessDetailsScreen = () => {
         console.log("buisiness details:", details);
       });
 
-    //the businss work time
+    //the business work time
     axios
-      .get(`${baseUrl}/HairSalon/GetHairSalonWorkTime?hairSalonId=${user.hairSalonId}`)
+      .get(
+        `${baseUrl}/HairSalon/GetHairSalonWorkTime?hairSalonId=${user.hairSalonId}`
+      )
       .then((response) => {
-        setWorkTime(response.data);
-        console.log(response.data);
+        const days = response.data;
+        const dayNames = [
+          "ראשון",
+          "שני",
+          "שלישי",
+          "רביעי",
+          "חמישי",
+          "שישי",
+          "שבת",
+        ];
+        days.sort((a, b) => parseInt(a.day) - parseInt(b.day));
+        console.log("sorted days", days);
+
+        const convertedData = days.map((item) => {
+          const dayNumber = parseInt(item.day);
+          const dayName = dayNames[dayNumber - 1];
+          const convertedFromHour = item.fromHour.slice(0, 5);
+          const convertedToHour = item.toHour.slice(0, 5);
+          return {
+            day: dayName,
+            fromHour: convertedFromHour,
+            toHour: convertedToHour,
+          };
+        });
+        setWorkTime(convertedData);
+        console.log("new data:", workTime);
       })
       .catch((error) => {
         console.log(error);
-      })
-      .finally(() => {
-        console.log("Hair salon work time:", workTime);
       });
   };
-
-
 
   return (
     <View style={styles.root}>
@@ -76,6 +99,7 @@ const BusinessDetailsScreen = () => {
         width="50%"
         alignSelf="center"
         backgroundColor="#3770B4"
+        marginTop={50}
         onPress={() => {
           navigation.navigate("map");
         }}
@@ -83,7 +107,7 @@ const BusinessDetailsScreen = () => {
         נווט לבית העסק
       </Button>
       <View style={styles.footer}>
-        <Footer/>
+        <Footer />
       </View>
     </View>
   );

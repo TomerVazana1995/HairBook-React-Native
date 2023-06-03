@@ -4,8 +4,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
+  LogBox
 } from "react-native";
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import CustomButton from "../components/CustomButton";
 import Footer from "../components/Footer";
 import PickImageComponent from "../components/PickImageComponent";
@@ -19,8 +20,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Dropdown } from "react-native-element-dropdown";
+import { AntDesign } from "@expo/vector-icons";
+
+const data = [];
 
 const SignUpScreen = () => {
+  LogBox.ignoreAllLogs();
+
   const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
   const userContext = useContext(UserContext);
@@ -35,16 +41,39 @@ const SignUpScreen = () => {
   const [isChecked, setIsChecked] = useState(false);
 
   const [hairSalons, setHairSalons] = useState([]);
-  const [selectedHairSalon, setSelectedHairSalon] = useState(null)
+  const [selectedHairSalon, setSelectedHairSalon] = useState(null);
 
   const [isOpen, setIsOpen] = useState(false);
 
   const min = new Date(1, 1, 1990);
 
-  useEffect(() => {
-    getAllHairSalon()
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
-  },[])
+  useEffect(() => {
+    if(isFocus){
+      userContext.registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+  
+      notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+        setNotification(notification);
+      });
+  
+      responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+        console.log(response);
+      });
+  
+      return () => {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+        Notifications.removeNotificationSubscription(responseListener.current);
+      };
+    }
+  }, [isFocus]);
+
+  useEffect(() => {
+    getAllHairSalon();
+  }, []);
 
   //if checkbox is checked save the phone number and logged in
   const saveUserLoggedIn = async () => {
@@ -82,6 +111,7 @@ const SignUpScreen = () => {
         birthDate: userContext.user.birthDate,
         image: userContext.user.image,
         gender: selectedGender,
+        hairSalonId: selectedHairSalon.value,
         token: expoPushToken,
       })
       .then(function (response) {
@@ -95,22 +125,32 @@ const SignUpScreen = () => {
     saveUserLoggedIn();
   };
 
-  const getAllHairSalon = () => {
-    axios
-    .get(`${baseUrl}/HairSalon/GetAllHairSalons`)
-    .then((response) => {console.log(response.data)})
-    .catch((error) => {console.log("the error:", error)})
-  }
+  const getAllHairSalon = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/HairSalon/GetAllHairSalons`);
+      setHairSalons(response.data);
+      response.data.map((hairSalon) => {
+        data.push({ lable: hairSalon.salonName, value: hairSalon.id });
+      })
+      console.log(hairSalons)
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const renderLabel = () => {
-    if (selectedCountry || isOpen) {
+    if (selectedHairSalon || isOpen) {
       return (
-        <Text style={[styles.label, isFocus && { color: "orange" }]}>
-          Country
+        <Text style={[styles.label, isOpen && { color: "orange" }]}>
+          Hair Salon
         </Text>
       );
     }
     return null;
+  };
+
+  const handleHairSalonChange = (item) => {
+    setSelectedHairSalon(item);
   };
 
 
@@ -131,7 +171,7 @@ const SignUpScreen = () => {
                   value={userContext.user.firstName}
                   placeholder="שם פרטי"
                   textAlign="right"
-                  style={{ marginVertical: 10 }}
+                  style={{ marginVertical: 10, backgroundColor: "transparent"  }}
                   onChangeText={(text) =>
                     userContext.setUser({
                       ...userContext.user,
@@ -145,7 +185,7 @@ const SignUpScreen = () => {
                 value={userContext.user.lastName}
                 placeholder="שם משפחה"
                 textAlign="right"
-                style={{ marginVertical: 10 }}
+                style={{ marginVertical: 10, backgroundColor: "transparent"  }}
                 onChangeText={(text) =>
                   userContext.setUser({ ...userContext.user, lastName: text })
                 }
@@ -168,33 +208,31 @@ const SignUpScreen = () => {
                 accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
                 keyboardType="number-pad"
               />
- <View style={styles.dropdownContainer}>
-              {renderLabel()}
-              <Dropdown
-                style={[styles.dropdown, isOpen && { borderColor: "orange" }]}
-                data={hairSalons}
-                maxHeight={300}
-                search
-                searchPlaceholder="search"
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                placeholder={!isFocus ? "Select country" : "..."}
-                labelField="lable"
-                valueField="value"
-                onFocus={() => setIsOpen(true)}
-                onBlur={() => setIsOpen(false)}
-                value={selectedCountry}
-                onChange={(item) => handleCountryChange(item)}
-                renderLeftIcon={() => (
-                  <AntDesign
-                    style={styles.icon}
-                    color="black"
-                    name="Safety"
-                    size={20}
-                  />
-                )}
-              />
-            </View>
+              <View style={styles.dropdownContainer}>
+                {renderLabel()}
+                <Dropdown
+                  style={[styles.dropdown, isOpen && { borderColor: "orange" }]}
+                  data={data}
+                  maxHeight={300}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  placeholder={!isOpen ? "Select country" : "..."}
+                  labelField="lable"
+                  valueField="value"
+                  onFocus={() => setIsOpen(true)}
+                  onBlur={() => setIsOpen(false)}
+                  value={selectedHairSalon}
+                  onChange={(item) => handleHairSalonChange(item)}
+                  renderLeftIcon={() => (
+                    <AntDesign
+                      style={styles.icon}
+                      color="black"
+                      name="Safety"
+                      size={20}
+                    />
+                  )}
+                />
+              </View>
               <FormControl.HelperText alignSelf="flex-end">
                 *נא הזן מספר טלפון בעל 10 ספרות
               </FormControl.HelperText>

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import React, {
   useState,
   useEffect,
@@ -7,10 +7,10 @@ import React, {
   useRef,
   useMemo,
 } from "react";
-import { Button, Heading } from "native-base";
+import { Button, Heading, Modal } from "native-base";
 import BookingDetailsComponent from "../components/BookingDetailsComponent";
 import axios from "axios";
-import DatePicker from "react-native-modern-datepicker";
+import { useNavigation } from "@react-navigation/native";
 import { UserContext } from "../context/context";
 import { DatePickerModal } from "react-native-paper-dates";
 import {
@@ -24,17 +24,23 @@ const BookingScreen = () => {
   const [services, setServices] = useState([]);
   const [isTreatmentPicked, setIsTreatmentPicked] = useState(false);
   const [treatment, setTreatment] = useState(null);
+  const [treatmentName, setTreatmentName] = useState(null)
 
   const [employees, setEmployees] = useState([]);
   const [isEmployeePicked, setIsEmployeePicked] = useState(false);
   const [employee, setEmployee] = useState(null);
+  const [employeeName, setEmployeeName] = useState('')
 
   const [date, setDate] = useState(new Date());
   const [openDateModal, setOpenDateModal] = useState(false);
 
   const [hours, setHours] = useState([]);
+  const [hour, setHour] = useState(null);
+  const [isDatePicked, setIsDatePicked] = useState(false);
 
-  const [open, setOpen] = useState(false);
+  const [noQueue, setNoQueue] = useState(false);
+
+  const navigation = useNavigation();
 
   const bottomSheetModalRef = useRef(null);
 
@@ -48,16 +54,20 @@ const BookingScreen = () => {
     (params) => {
       setOpenDateModal(false);
       setDate(params.date);
+      setIsDatePicked(true);
       console.log(params.date);
       console.log("this is date:", date);
-      getDateHours();
     },
-    [setOpenDateModal, setDate, getDateHours]
+    [setOpenDateModal, setDate, setIsDatePicked]
   );
 
   useEffect(() => {
     getServicesInfo();
   }, []);
+
+  useEffect(() => {
+    getDateHours();
+  }, [employee]);
 
   const getServicesInfo = () => {
     axios
@@ -71,10 +81,8 @@ const BookingScreen = () => {
       });
   };
 
-
   const getDateHours = async () => {
     try {
-      console.log("hello");
       const response = await axios.get(
         `${baseUrl}/Queue/GetAvailableTimes?serviceNum=${treatment}&phoneNum=${employee.phoneNum}&Date=2023-05-17T10:15:09.950Z&hairSalonId=${user.hairSalonId}`
       );
@@ -83,10 +91,11 @@ const BookingScreen = () => {
       console.log("Something went wrong:", error);
     }
   };
-  
+
   const handlePickTreatment = (service) => {
     setIsTreatmentPicked(true);
     setTreatment(service.treatmentNum);
+    setTreatmentName(service.treatmentType)
     axios
       .get(
         `${baseUrl}/Employee/GetByService?service=${service.treatmentNum}&hairsalonId=${user.hairSalonId}`
@@ -97,11 +106,11 @@ const BookingScreen = () => {
   };
 
   const handlePickEmployee = async (employee) => {
-    setIsEmployeePicked(true);
-    setOpenDateModal(true);
-    setEmployee(employee);
-  
     try {
+      setIsEmployeePicked(true);
+      setOpenDateModal(true);
+      setEmployee(employee);
+      setEmployeeName(`${employee.firstName} ${employee.lastName}`)
       const response = await axios.get(
         `${baseUrl}/Employee/GetDatesByEmployee?EmpPhone=${employee.phoneNum}&hairSalonId=${user.hairSalonId}`
       );
@@ -114,12 +123,11 @@ const BookingScreen = () => {
   };
 
   // variables
-  const snapPoints = useMemo(() => ["10%", "60%"], []);
+  const snapPoints = useMemo(() => ["10%", "40%"], []);
 
   // callbacks
   const handlePresentModalPress = useCallback(() => {
     bottomSheetModalRef.current?.present();
-    setOpen(true);
   }, []);
 
   const handleSheetChanges = useCallback((index) => {
@@ -137,7 +145,7 @@ const BookingScreen = () => {
       })
       .then((response) => {
         console.log(response);
-        alert("queue orederd");
+        Alert.alert("הזמנת תור", "התור הוזמן בהצלחה", [{text: "OK", onPress: () => navigation.navigate("דף הבית")}])
       })
       .catch((error) => console.log(error));
   };
@@ -167,7 +175,7 @@ const BookingScreen = () => {
             </ScrollView>
           </View>
           {isTreatmentPicked && (
-            <>
+            <View style={{marginTop: 20}}>
               <Text style={styles.text}>בחר עובד</Text>
               <View
                 style={{
@@ -186,10 +194,10 @@ const BookingScreen = () => {
                   />
                 ))}
               </View>
-            </>
+            </View>
           )}
           {isEmployeePicked && (
-            <>
+            <View style={{marginTop: 20}}>
               <Text style={styles.text}>בחר תאריך</Text>
               <View
                 style={{
@@ -215,10 +223,10 @@ const BookingScreen = () => {
                   onPress={() => setOpenDateModal(true)}
                 />
               </View>
-            </>
+            </View>
           )}
-          {date && (
-            <>
+          {isDatePicked && (
+            <View style={{marginTop: 20}}>
               <Text style={styles.text}>בחר שעה</Text>
               <View
                 style={{
@@ -232,12 +240,12 @@ const BookingScreen = () => {
                     <BookingDetailsComponent
                       key={index}
                       text={`${hour}`}
-                      onPress={() => orderQueue(hour)}
+                      onPress={() => [setHour(hour), handlePresentModalPress()]}
                     />
                   ))}
                 </ScrollView>
               </View>
-            </>
+            </View>
           )}
         </View>
         <View
@@ -259,13 +267,14 @@ const BookingScreen = () => {
           onChange={handleSheetChanges}
         >
           <View style={styles.contentContainer}>
-            <Heading alignSelf="flex-end">פרטי הזמנת תור</Heading>
-            <Text style={styles.modalText}>טיפול: {treatment}</Text>
-            <Text style={styles.modalText}>עובד: {employee}</Text>
+            <Heading>פרטי הזמנת תור</Heading>
+            <Text style={styles.modalText}>טיפול: {treatmentName}</Text>
+            <Text style={styles.modalText}>עובד: {employeeName}</Text>
             <Text style={styles.modalText}>
               תאריך: {new Date(date).toLocaleDateString()}
             </Text>
-            <Text style={styles.modalText}>שעה:</Text>
+            <Text style={styles.modalText}>שעה: {hour}</Text>
+            <Button backgroundColor="#3770B4" onPress={() => orderQueue(hour)}>לחץ כאן לאישור</Button>
           </View>
         </BottomSheetModal>
       </View>
@@ -299,10 +308,12 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: "center",
+    textAlign: "center",
+    gap: 10
   },
   modalText: {
     fontSize: 20,
-    fontWeight: 500,
+    fontWeight: 300,
   },
 });
 

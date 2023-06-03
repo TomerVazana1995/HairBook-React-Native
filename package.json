@@ -50,7 +50,8 @@
     "react-native-screens": "~3.20.0",
     "react-native-svg": "13.4.0",
     "react-native-web": "~0.18.10",
-    "react-social-icons": "^5.15.0"
+    "react-social-icons": "^5.15.0",
+    "expo-location": "~15.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9"

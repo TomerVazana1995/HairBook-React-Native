@@ -1,75 +1,14 @@
-import { View, StyleSheet, Image } from "react-native";
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { View, StyleSheet, Text} from "react-native";
+import React from "react";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import Footer from "../components/Footer";
 import CustomCarusel from "../components/CustomCarusel";
 import { Button } from "native-base";
-import { UserContext } from "../context/context";
-import * as Notifications from "expo-notifications";
-import NavigationImage from "../images/navigate.png";
-import DatePicker from "react-native-modern-datepicker";
-import Logo from "../../assets/logo2.png";
-import axios from "axios";
 import NextQueue from "../components/NextQueue";
-
-const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
+import { Heading } from "native-base";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-
-  const { user } = useContext(UserContext);
-  const [futureQueues, setFutureQueues] = useState([]);
-  const [date, setDate] = useState(null);
-  const [time, setTime] = useState(null);
-
-  //notifications
-  // const [expoPushToken, setExpoPushToken] = useState("");
-  // const [notification, setNotification] = useState(false);
-  // const notificationListener = useRef();
-  // const responseListener = useRef();
-
-  // const { user, sendPushNotification, registerForPushNotificationsAsync } =
-  // useContext(UserContext);
-
-  //   useEffect(() => {
-
-  //     registerForPushNotificationsAsync()
-  //       .then((token) => {
-  //         setExpoPushToken(token);
-  //       })
-  //       .catch((error) => console.log("error is:", error));
-
-  //     notificationListener.current =
-  //       Notifications.addNotificationReceivedListener((notification) => {
-  //         setNotification(notification);
-  //       });
-
-  //     responseListener.current =
-  //       Notifications.addNotificationResponseReceivedListener((response) => {
-  //         console.log(response);
-  //       });
-
-  //     return () => {
-  //       Notifications.removeNotificationSubscription(
-  //         notificationListener.current
-  //       );
-  //       Notifications.removeNotificationSubscription(responseListener.current);
-  //     };
-
-  // }, []);
-
-  useEffect(() => {
-    getFutureQueues();
-  }, []);
-
-  const getFutureQueues = async () => {
-   await axios
-      .get(
-        `${baseUrl}/Queue/GetQueuesByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
-      )
-      .then((response) => {console.log(response.data),setFutureQueues(response.data), setDate(response.data[0].date), setTime(response.data[0].startTime)})
-      .catch((error) => console.log("this is the error", error))
-  };
 
   const data = [
     {
@@ -87,45 +26,33 @@ const HomeScreen = () => {
     <View
       style={{ backgroundColor: "#f8f8f8", flex: 1, flexDirection: "column" }}
     >
-      <View style={{ width: "100%", alignItems: "center" }}>
-        <View
-          style={{
-            marginTop: 40,
-            marginBottom: 30,
-            width: "50%",
-          }}
-        >
-          <Button
-            variant="outline"
-            style={{ borderRadius: 15, marginHorizontal: 10 }}
-            onPress={() => {
-              navigation.navigate("Business details");
-            }}
-          >
-            כתובת ויצירת קשר
-          </Button>
-        </View>
-      </View>
-      <View style={{ marginBottom: 30 }}>
+      <Heading alignSelf="center" paddingTop={15}>ברוכים הבאים למספרת אריק חסון</Heading>
+      <View style={{ marginVertical: 50 }}>
         <CustomCarusel data={data} />
       </View>
-      <NextQueue date={date} time={time}/>
+      <NextQueue />
       <View style={styles.navigationContainer}>
-        <Image
-          style={styles.image}
-          source={NavigationImage}
-          resizeMode="contain"
-        />
         <Button
           bg="#3770B4"
-          width="50%"
+          width="40%"
           alignSelf="center"
-          style={{ borderRadius: 15, marginHorizontal: 10 }}
+          style={{ borderRadius: 15, marginHorizontal: 5 }}
           onPress={() => {
             navigation.navigate("map");
           }}
         >
           נווט אל העסק
+        </Button>
+        <Button
+          variant="outline"
+          width="40%"
+          alignSelf="center"
+          style={{ borderRadius: 15, marginHorizontal: 5 }}
+          onPress={() => {
+            navigation.navigate("Business details");
+          }}
+        >
+          כתובת ויצירת קשר
         </Button>
       </View>
       <View style={styles.footer}>
@@ -155,7 +82,8 @@ const styles = StyleSheet.create({
   },
   navigationContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "center",
+    flexDirection: "row"
   },
   image: {
     aspectRatio: 1,

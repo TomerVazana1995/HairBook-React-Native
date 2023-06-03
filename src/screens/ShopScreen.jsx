@@ -14,7 +14,7 @@ const ShopScreen = () => {
   const [productAmount, setProductAmount] = useState(0);
   const [pickUpDate, setPickUpDate] = useState(new Date());
 
-  const { user } = useContext(UserContext);
+  const { user, sendPushNotification } = useContext(UserContext);
 
   const navigation = useNavigation();
 
@@ -92,6 +92,7 @@ const ShopScreen = () => {
         "likedProducts",
         JSON.stringify(likedProducts)
       );
+      Alert.alert("שמרנו בשבילך את המוצר במועדפים");
     } catch (error) {
       console.log("Error: ", error);
     }

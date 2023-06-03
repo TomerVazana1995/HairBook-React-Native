@@ -1,6 +1,6 @@
 import { TouchableOpacity } from "react-native";
 import React, { useEffect } from "react";
-import { NavigationContainer, } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import {
   createDrawerNavigator,
   DrawerToggleButton,
@@ -18,14 +18,16 @@ import {
   FontAwesome5,
   MaterialCommunityIcons,
   AntDesign,
+  MaterialIcons,
+  Entypo,
 } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LikedProductsScreen from "../../screens/LikedProductsScreen";
 import MapComponent from "../MapComponent";
+import MyBookingsScreen from "../../screens/MyBookingsScreen";
+import MyOrdersScreen from "../../screens/MyOrdersScreen";
 
 const MainStack = () => {
-
-
   const SettingsNavigator = () => {
     const Stack = createNativeStackNavigator();
     return (
@@ -43,7 +45,6 @@ const MainStack = () => {
           component={PersonalDetailsScreen}
           options={{ title: "פרטים אישיים" }}
         />
-        
       </Stack.Navigator>
     );
   };
@@ -52,11 +53,19 @@ const MainStack = () => {
     const Stack = createNativeStackNavigator();
     return (
       <Stack.Navigator initialRouteName="shop">
-        <Stack.Screen name="shop" component={ShopScreen} options={{title: "המוצרים שלנו"}}/>
-        <Stack.Screen name="liked products" component={LikedProductsScreen} options={{title: "מוצרים שאהבת"}}/>
+        <Stack.Screen
+          name="shop"
+          component={ShopScreen}
+          options={{ title: "המוצרים שלנו" }}
+        />
+        <Stack.Screen
+          name="liked products"
+          component={LikedProductsScreen}
+          options={{ title: "מוצרים שאהבת" }}
+        />
       </Stack.Navigator>
-    )
-  }
+    );
+  };
 
   const Drawer = createDrawerNavigator();
 
@@ -104,21 +113,22 @@ const MainStack = () => {
         <Drawer.Screen
           name="חנות מוצרים"
           component={ShopNavigator}
-          options={({navigation}) => ({
+          options={({ navigation }) => ({
             drawerIcon: () => <FontAwesome5 name="store" size={17} />,
             drawerLabelStyle: { textAlign: "right", fontSize: 17 },
             headerLeft: () => (
-              <TouchableOpacity onPress={() => navigation.navigate("liked products")}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("liked products")}
+              >
                 <MaterialCommunityIcons
                   style={{ marginLeft: 10 }}
                   size={25}
                   name="shopping-outline"
-                  color="white"      
+                  color="white"
                 />
               </TouchableOpacity>
             ),
-          })
-          }
+          })}
         />
         <Drawer.Screen
           name="הצוות שלנו"
@@ -137,6 +147,22 @@ const MainStack = () => {
           }}
         />
         <Drawer.Screen
+          name="התורים שלי"
+          component={MyBookingsScreen}
+          options={{
+            drawerIcon: () => <MaterialIcons name="queue" size={25} />,
+            drawerLabelStyle: { textAlign: "right", fontSize: 17 },
+          }}
+        />
+        <Drawer.Screen
+          name="ההזמנות שלי"
+          component={MyOrdersScreen}
+          options={{
+            drawerIcon: () => <Entypo name="shopping-cart" size={25} />,
+            drawerLabelStyle: { textAlign: "right", fontSize: 17 },
+          }}
+        />
+        <Drawer.Screen
           name="Business details"
           component={BusinessDetailsScreen}
           options={{ drawerItemStyle: { height: 0 } }}
@@ -146,7 +172,7 @@ const MainStack = () => {
           component={LikedProductsScreen}
           options={{ drawerItemStyle: { height: 0 } }}
         />
-         <Drawer.Screen
+        <Drawer.Screen
           name="map"
           component={MapComponent}
           options={{ drawerItemStyle: { height: 0 } }}

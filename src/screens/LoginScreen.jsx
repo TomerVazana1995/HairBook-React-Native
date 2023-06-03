@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import React, { useContext, useState, useRef } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "../components/CustomButton";
 import { Icon, Input } from "@ui-kitten/components";
@@ -19,8 +19,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Login from "../images/login.png";
 import OTPInputView from "@twotalltotems/react-native-otp-input";
 import { Pressable } from "react-native";
+import { Dropdown } from "react-native-element-dropdown";
+import { AntDesign } from "@expo/vector-icons";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
+
+const data = [];
 
 const LoginScreen = () => {
   const [phoneNum, setPhoneNum] = useState("");
@@ -31,11 +35,19 @@ const LoginScreen = () => {
   const [clearInputs, setClearInputs] = useState(false);
   const [disabled, setDisabled] = useState(true);
 
+  const [hairSalons, setHairSalons] = useState([]);
+  const [selectedHairSalon, setSelectedHairSalon] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   const { height } = useWindowDimensions();
 
   const navigation = useNavigation();
 
   const userContext = useContext(UserContext);
+
+  useEffect(() => {
+    getAllHairSalon();
+  },[])
 
   const saveUserLoggedIn = async () => {
     if (isChecked) {
@@ -96,6 +108,30 @@ const LoginScreen = () => {
     setDisabled(true)
   }
 
+  const getAllHairSalon = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/HairSalon/GetAllHairSalons`);
+      setHairSalons(response.data);
+      response.data.map((hairSalon) => {
+        data.push({ lable: hairSalon.salonName, value: hairSalon.id });
+      })
+      console.log(hairSalons)
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const renderLabel = () => {
+    if (selectedHairSalon || isOpen) {
+      return (
+        <Text style={[styles.label, isOpen && { color: "orange" }]}>
+          Hair Salon
+        </Text>
+      );
+    }
+    return null;
+  };
+
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.root}>
@@ -108,15 +144,41 @@ const LoginScreen = () => {
           <Text style={styles.title}>הזן מספר טלפון-נייד להתחברות</Text>
           <View style={{ width: "70%" }}>
             <Input
+
               keyboardType="number-pad"
               value={phoneNum}
               placeholder="טלפון - נייד"
               textAlign="right"
-              style={{ margin: 10 }}
+              style={{ margin: 10, backgroundColor: "transparent" }}
               accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
               onChangeText={(text) => setPhoneNum(text)}
               autoFocus={false}
             />
+              <View style={styles.dropdownContainer}>
+                {renderLabel()}
+                <Dropdown
+                  style={[styles.dropdown, isOpen && { borderColor: "orange" }]}
+                  data={data}
+                  maxHeight={300}
+                  placeholderStyle={styles.placeholderStyle}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  placeholder={!isOpen ? "Select country" : "..."}
+                  labelField="lable"
+                  valueField="value"
+                  onFocus={() => setIsOpen(true)}
+                  onBlur={() => setIsOpen(false)}
+                  value={selectedHairSalon}
+                  onChange={(item) => handleHairSalonChange(item)}
+                  renderLeftIcon={() => (
+                    <AntDesign
+                      style={styles.icon}
+                      color="black"
+                      name="Safety"
+                      size={20}
+                    />
+                  )}
+                />
+              </View>
             <View style={styles.saveUserBox}>
               <Checkbox
                 flexDirection="row-reverse"
@@ -239,6 +301,25 @@ const styles = StyleSheet.create({
   },
   underlineStyleHighLighted: {
     borderColor: "#03DAC6",
+  },
+  dropdown: {
+    height: 50,
+    borderColor: "#e8e8e8",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 8,
+  },
+  dropdownContainer: {
+    backgroundColor: "white",
+    paddingVertical: 16,
+    width: "100%",
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  placeholderStyle: {
+    fontSize: 16,
+    color: "lightgrey",
   },
 });
 

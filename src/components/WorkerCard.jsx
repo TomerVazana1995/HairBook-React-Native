@@ -4,6 +4,7 @@ import { Avatar } from "native-base";
 import { TouchableOpacity } from "react-native";
 import axios from "axios";
 import { UserContext } from "../context/context";
+import { AntDesign } from "@expo/vector-icons";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -15,7 +16,9 @@ const WorkerCard = () => {
 
   const getAllEmployees = () => {
     axios
-      .get(`${baseUrl}/Employee/GetAllEmployees?hairSalonId=${user.hairSalonId}`)
+      .get(
+        `${baseUrl}/Employee/GetAllEmployees?hairSalonId=${user.hairSalonId}`
+      )
       .then(function (response) {
         console.log(response.data);
         setEmployees(response.data);
@@ -27,7 +30,7 @@ const WorkerCard = () => {
 
   useEffect(() => {
     getAllEmployees();
-  },[]);
+  }, []);
 
   useEffect(() => {
     Animated.timing(animation, {
@@ -50,25 +53,33 @@ const WorkerCard = () => {
   return (
     <>
       {employees.map((employee, index) => (
-        <TouchableOpacity style={{width: "70%"}} key={index}>
+        <TouchableOpacity style={{ width: "70%" }} key={index}>
           <Animated.View
             style={[
               styles.container,
               { transform: [{ translateY: translateY }], opacity: opacity },
             ]}
           >
-            <Avatar
-              source={{uri: employee.image}}
-              size="lg"
-              marginLeft={5}
-            />
-            <View style={{flex: 1}}>
-            <Text style={{ fontSize: 20, alignSelf: "center"}}>{employee.firstName} {employee.lastName}</Text>
+            <Avatar source={{ uri: employee.image }} size="lg" marginLeft={5} />
+            <View style={{ flex: 1, gap: 5 }}>
+              <Text style={{ fontSize: 20, alignSelf: "center" }}>
+                {employee.firstName} {employee.lastName}
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  gap: 5,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{fontWeight: 500}}>{employee.rank}</Text>
+                <AntDesign name="star" color="#FFD400" />
+              </View>
             </View>
           </Animated.View>
         </TouchableOpacity>
-      ))
-      }
+      ))}
     </>
   );
 };
@@ -89,7 +100,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     elevation: 15,
     textAlign: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
 });
 
