@@ -61,9 +61,6 @@ const Footer = () => {
         <TouchableOpacity onPress={openInstagremUrl}>
           <SocialIcon type="instagram" size={30} />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <SocialIcon type="whatsapp" size={30} />
-        </TouchableOpacity>
       </View>
     </View>
   );

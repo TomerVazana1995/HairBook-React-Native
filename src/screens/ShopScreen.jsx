@@ -13,6 +13,7 @@ const ShopScreen = () => {
   const [products, setProducts] = useState([]);
   const [productAmount, setProductAmount] = useState(0);
   const [pickUpDate, setPickUpDate] = useState(new Date());
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
   const { user, sendPushNotification } = useContext(UserContext);
 

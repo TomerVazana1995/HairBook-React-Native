@@ -139,14 +139,6 @@ const MainStack = () => {
           }}
         />
         <Drawer.Screen
-          name="הגדרות"
-          component={SettingsNavigator}
-          options={{
-            drawerIcon: () => <Ionicons name="settings" size={25} />,
-            drawerLabelStyle: { textAlign: "right", fontSize: 17 },
-          }}
-        />
-        <Drawer.Screen
           name="התורים שלי"
           component={MyBookingsScreen}
           options={{
@@ -159,6 +151,14 @@ const MainStack = () => {
           component={MyOrdersScreen}
           options={{
             drawerIcon: () => <Entypo name="shopping-cart" size={25} />,
+            drawerLabelStyle: { textAlign: "right", fontSize: 17 },
+          }}
+        />
+        <Drawer.Screen
+          name="הגדרות"
+          component={SettingsNavigator}
+          options={{
+            drawerIcon: () => <Ionicons name="settings" size={25} />,
             drawerLabelStyle: { textAlign: "right", fontSize: 17 },
           }}
         />

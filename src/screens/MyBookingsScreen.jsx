@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import BookingComponent from "../components/BookingComponent";
 import { Switch, HStack } from "native-base";
 
+LogBox.ignoreLogs([
+  "We can not support a function callback. See Github Issues for details https://github.com/adobe/react-spectrum/issues/2320",
+]);
 const MyBookingsScreen = () => {
-  LogBox.ignoreLogs([
-    "We can not support a function callback. See Github Issues for details https://github.com/adobe/react-spectrum/issues/2320",
-  ]);
 
   const [future, setFuture] = useState(false);
 

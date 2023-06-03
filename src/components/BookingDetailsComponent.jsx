@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 
-const BookingDetailsComponent = ({text, onPress, index, isPicked}) => {
+const BookingDetailsComponent = ({text, onPress, index, color="white"}) => {
   return (
     <TouchableOpacity key={index} onPress={onPress}>
-      <View style={[styles.container, {backgroundColor: isPicked ? 'red' : "white"}]}>
+      <View style={[styles.container, {backgroundColor: color}]}>
         <Text>{text}</Text>
       </View>
     </TouchableOpacity>

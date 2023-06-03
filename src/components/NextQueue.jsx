@@ -25,13 +25,12 @@ const NextQueue = () => {
         `${baseUrl}/Queue/GetQueuesByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
       );
       if(response){
-             console.log(response.data);
+      console.log(response.data);
       const queueDate = new Date(response.data[0].date);
       setDate(queueDate.toLocaleDateString()),
       setTime(response.data[0].startTime.slice(0,5));
       setShowNextQueue(true);
       }
- 
     } catch (error) {
       console.log("this is the error", error)
     }

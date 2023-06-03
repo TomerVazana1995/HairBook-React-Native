@@ -4,7 +4,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
-  LogBox
+  LogBox,
 } from "react-native";
 import React, { useContext, useState, useEffect, useRef } from "react";
 import CustomButton from "../components/CustomButton";
@@ -47,25 +47,31 @@ const SignUpScreen = () => {
 
   const min = new Date(1, 1, 1990);
 
-  const [expoPushToken, setExpoPushToken] = useState('');
+  const [expoPushToken, setExpoPushToken] = useState("");
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
 
   useEffect(() => {
-    if(isFocus){
-      userContext.registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-  
-      notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-        setNotification(notification);
-      });
-  
-      responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-        console.log(response);
-      });
-  
+    if (isFocus) {
+      userContext
+        .registerForPushNotificationsAsync()
+        .then((token) => setExpoPushToken(token));
+
+      notificationListener.current =
+        Notifications.addNotificationReceivedListener((notification) => {
+          setNotification(notification);
+        });
+
+      responseListener.current =
+        Notifications.addNotificationResponseReceivedListener((response) => {
+          console.log(response);
+        });
+
       return () => {
-        Notifications.removeNotificationSubscription(notificationListener.current);
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
         Notifications.removeNotificationSubscription(responseListener.current);
       };
     }
@@ -131,8 +137,8 @@ const SignUpScreen = () => {
       setHairSalons(response.data);
       response.data.map((hairSalon) => {
         data.push({ lable: hairSalon.salonName, value: hairSalon.id });
-      })
-      console.log(hairSalons)
+      });
+      console.log(hairSalons);
     } catch (error) {
       console.log(error);
     }
@@ -141,9 +147,7 @@ const SignUpScreen = () => {
   const renderLabel = () => {
     if (selectedHairSalon || isOpen) {
       return (
-        <Text style={[styles.label, isOpen && { color: "orange" }]}>
-          Hair Salon
-        </Text>
+        <Text style={[styles.label, isOpen && { color: "orange" }]}>מספרה</Text>
       );
     }
     return null;
@@ -152,7 +156,6 @@ const SignUpScreen = () => {
   const handleHairSalonChange = (item) => {
     setSelectedHairSalon(item);
   };
-
 
   return (
     <View style={styles.wraper}>
@@ -171,7 +174,7 @@ const SignUpScreen = () => {
                   value={userContext.user.firstName}
                   placeholder="שם פרטי"
                   textAlign="right"
-                  style={{ marginVertical: 10, backgroundColor: "transparent"  }}
+                  style={{ marginVertical: 10 }}
                   onChangeText={(text) =>
                     userContext.setUser({
                       ...userContext.user,
@@ -185,7 +188,7 @@ const SignUpScreen = () => {
                 value={userContext.user.lastName}
                 placeholder="שם משפחה"
                 textAlign="right"
-                style={{ marginVertical: 10, backgroundColor: "transparent"  }}
+                style={{ marginVertical: 10 }}
                 onChangeText={(text) =>
                   userContext.setUser({ ...userContext.user, lastName: text })
                 }
@@ -208,6 +211,9 @@ const SignUpScreen = () => {
                 accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
                 keyboardType="number-pad"
               />
+              <FormControl.HelperText alignSelf="flex-end">
+                *נא הזן מספר טלפון בעל 10 ספרות
+              </FormControl.HelperText>
               <View style={styles.dropdownContainer}>
                 {renderLabel()}
                 <Dropdown
@@ -216,7 +222,7 @@ const SignUpScreen = () => {
                   maxHeight={300}
                   placeholderStyle={styles.placeholderStyle}
                   selectedTextStyle={styles.selectedTextStyle}
-                  placeholder={!isOpen ? "Select country" : "..."}
+                  placeholder={!isOpen ? "מספרה" : "..."}
                   labelField="lable"
                   valueField="value"
                   onFocus={() => setIsOpen(true)}
@@ -233,9 +239,6 @@ const SignUpScreen = () => {
                   )}
                 />
               </View>
-              <FormControl.HelperText alignSelf="flex-end">
-                *נא הזן מספר טלפון בעל 10 ספרות
-              </FormControl.HelperText>
             </FormControl>
           </View>
           <View
@@ -388,11 +391,12 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   dropdown: {
-    height: 50,
+    height: 45,
     borderColor: "#e8e8e8",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 8,
+    backgroundColor: "#F5F8FE",
   },
   dropdownContainer: {
     backgroundColor: "white",
@@ -403,8 +407,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   placeholderStyle: {
-    fontSize: 16,
-    color: "lightgrey",
+    fontSize: 15,
+    color: "#79909C",
+    position: "absolute",
+    right: 20,
   },
 });
 

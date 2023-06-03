@@ -125,12 +125,17 @@ const LoginScreen = () => {
     if (selectedHairSalon || isOpen) {
       return (
         <Text style={[styles.label, isOpen && { color: "orange" }]}>
-          Hair Salon
+          מספרה
         </Text>
       );
     }
     return null;
   };
+
+    const handleHairSalonChange = (item) => {
+    setSelectedHairSalon(item);
+  };
+  
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -144,12 +149,11 @@ const LoginScreen = () => {
           <Text style={styles.title}>הזן מספר טלפון-נייד להתחברות</Text>
           <View style={{ width: "70%" }}>
             <Input
-
               keyboardType="number-pad"
               value={phoneNum}
               placeholder="טלפון - נייד"
               textAlign="right"
-              style={{ margin: 10, backgroundColor: "transparent" }}
+              style={{ margin: 10 }}
               accessoryLeft={(props) => <Icon {...props} name="phone-call" />}
               onChangeText={(text) => setPhoneNum(text)}
               autoFocus={false}
@@ -162,7 +166,7 @@ const LoginScreen = () => {
                   maxHeight={300}
                   placeholderStyle={styles.placeholderStyle}
                   selectedTextStyle={styles.selectedTextStyle}
-                  placeholder={!isOpen ? "Select country" : "..."}
+                  placeholder={!isOpen ? "מספרה" : "..."}
                   labelField="lable"
                   valueField="value"
                   onFocus={() => setIsOpen(true)}
@@ -303,11 +307,13 @@ const styles = StyleSheet.create({
     borderColor: "#03DAC6",
   },
   dropdown: {
-    height: 50,
+    height: 45,
     borderColor: "#e8e8e8",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 8,
+    backgroundColor: "#F5F8FE",
+    marginHorizontal: 10
   },
   dropdownContainer: {
     backgroundColor: "white",
@@ -316,10 +322,14 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: 16,
+    position: "absolute",
+    right: 20,
   },
   placeholderStyle: {
-    fontSize: 16,
-    color: "lightgrey",
+    fontSize: 15,
+    color: "#79909C",
+    position: "absolute",
+    right: 20,
   },
 });
 
