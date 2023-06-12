@@ -1,89 +1,181 @@
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image } from "react-native";
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "../context/context";
-
+import { useNavigation } from "@react-navigation/native";
+import { Button } from "native-base";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const OrdersComponent = ({ future = false }) => {
+  const [allOrders, setAllOrders] = useState([]);
+  const [futureOrders, setFutureOrders] = useState([]);
+  const { user } = useContext(UserContext);
 
-    const [allOrders, setAllOrders] = useState([]);
-    const [futureOrders, setFutureOrders] = useState([]);
-    const { user } = useContext(UserContext);
+  const navigation = useNavigation();
 
-    useEffect(() => {
-        getAllOrderedProducts();
-        getFutureOrders();
-      },[])
-    
-      const getAllOrderedProducts = async () => {
-        try {
-          const response = await axios.get(
-            `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=1`
-          );
-          console.log("all", response.data)
-          setAllOrders(response.data);
-        } catch (error) {console.loh(error)}
-      };
-    
-      const getFutureOrders = async () => {
-        try {
-            const response = await axios.get(
-                `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
-              );
-              console.log("future", response.data)
-              setFutureOrders(response.data);
-        } catch (error) {
-            
-        }
-      }
+  useEffect(() => {
+    getAllOrderedProducts();
+    getFutureOrders();
+  }, []);
 
-  return (
-    <>
-      {!future ? allOrders.map((order) => (
-        <View style={styles.container} key={order.confirmNum}>
-            <Text style={styles.title}>{order.name}</Text>
-             <Image style={styles.image} source={{uri: order.image}}/>
-             <Text style={styles.text}>{order.description}</Text>
-             <Text>כמות שהזמנת: {order.amount}</Text>
-             <Text>מחיר כולל: {order.price}</Text>
-             <Text>קוד מוצר: {order.confirmNum}</Text>
+  const getAllOrderedProducts = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=1`
+      );
+      console.log("all", response.data);
+      setAllOrders(response.data);
+    } catch (error) {
+      console.loh(error);
+    }
+  };
+
+  const getFutureOrders = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
+      );
+      console.log("future", response.data);
+      setFutureOrders(response.data);
+    } catch (error) {}
+  };
+
+  const AllOrders = () => {
+    if (allOrders.length === 0) {
+      return (
+        <View style={styles.container}>
+          <Text
+            style={{ textAlign: "center", fontSize: 25, alignItems: "center", fontFamily: "American Typewriter" }}
+          >
+            עדיין לא הזמנת מהמוצרים שלנו? מהרו להזמין מהחנות שלנו
+          </Text>
+          <View style={{ alignItems: "center" }}>
+            <Text style={{ textAlign: "center" }}>לחץ כאן להזמנת מוצר</Text>
+            <Button
+              bgColor="#3770b4"
+              w="80%"
+              onPress={() => navigation.navigate("חנות מוצרים")}
+            >
+              להזמנת מוצר
+            </Button>
+          </View>
         </View>
-      )): futureOrders.map((order) => (
-        <View style={styles.container} key={order.confirmNum}>
-        <Text style={styles.title}>{order.name}</Text>
-         <Image style={styles.image} source={{uri: order.image}}/>
-         <Text style={styles.text}>{order.description}</Text>
-         <Text>כמות שהזמנת: {order.amount}</Text>
-         <Text>מחיר כולל: {order.price}</Text>
-         <Text>קוד מוצר: {order.confirmNum}</Text>
-    </View>
-      ))}
-    </>
-  )
-}
+      );
+    } else {
+      return (
+        <>
+          {allOrders.map((order) => (
+            <View style={styles.container} key={order.confirmNum}>
+              <Text style={styles.title}>{order.name}</Text>
+              <Image style={styles.image} source={{ uri: order.image }} />
+              <View style={styles.contentContainer}>
+                <Text style={styles.contentTitle}>{order.description}</Text>
+                <View style={styles.bottomContainer}>
+                  <Text style={styles.text}>כמות שהזמנת: {order.amount}</Text>
+                  <Text style={styles.text}>מחיר כולל: {order.price}</Text>
+                  <Text style={styles.text}>קוד מוצר: {order.confirmNum}</Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </>
+      );
+    }
+  };
+
+  const FutureOrders = () => {
+    if (futureOrders.length === 0) {
+      return (
+        <View style={{ gap: 30, width: "80%", paddingTop: 30 }}>
+          <Text
+            style={{ textAlign: "center", fontSize: 25, alignItems: "center" }}
+          >
+            נראה שאין הזמנות שמחכות על שמך, מהר להזמין לפני שנגמר המלאי
+          </Text>
+          <View style={{ alignItems: "center" }}>
+            <Text style={{ textAlign: "center" }}>לחץ כאן להזמנת מוצר</Text>
+            <Button
+              bgColor="#3770b4"
+              w="80%"
+              onPress={() => navigation.navigate("חנות מוצרים")}
+            >
+              להזמנת מוצר
+            </Button>
+          </View>
+        </View>
+      );
+    } else {
+      return (
+        <>
+          {futureOrders.map((order) => (
+            <View style={styles.container} key={order.confirmNum}>
+              <Text style={styles.title}>{order.name}</Text>
+              <Image style={styles.image} source={{ uri: order.image }} />
+              <View style={styles.contentContainer}>
+                <Text style={styles.contentTitle}>{order.description}</Text>
+                <View style={styles.bottomContainer}>
+                  <Text style={styles.text}>כמות שהזמנת: {order.amount}</Text>
+                  <Text style={styles.text}>מחיר כולל: {order.price}</Text>
+                  <Text style={styles.text}>קוד מוצר: {order.confirmNum}</Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </>
+      );
+    }
+  };
+
+  return <>{!future ? <AllOrders /> : <FutureOrders />}</>;
+};
 
 const styles = StyleSheet.create({
-    container: {
-        alignItems: "center",
-        borderWidth: 1,
-        padding: 10,
-        borderRadius: 5,
-        gap: 10,
-        width: "60%", 
-    },
-    image: {
-        width: 40,
-        height: 50
-    },
-    title: {
-        fontWeight: 600,
-        fontSize: 15
-    },
-    text: {
-        textAlign: "center",
-    }
-  });
-  
-export default OrdersComponent
+  container: {
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 5,
+    gap: 10,
+    width: "70%",
+    borderColor: "#CDCDCD",
+    shadowOffset: { height: 10 },
+    shadowOpacity: 0.3,
+    shadowColor: "#CDCDCD",
+    borderRadius: 5,
+  },
+  image: {
+    width: 40,
+    height: 50,
+  },
+  title: {
+    fontWeight: 600,
+    fontSize: 18,
+    paddingVertical: 10,
+    fontFamily: "Avenir Next"
+  },
+  text: {
+    textAlign: "center",
+    fontFamily: "Avenir Next"
+  },
+  contentContainer: {
+    alignItems: "center",
+    textAlign: "center",
+    width: "100%"
+  },
+  contentTitle: {
+    textAlign: "center",
+    padding: 15,
+    fontSize: 20,
+    fontFamily: "Avenir Next"
+  }, 
+  bottomContainer: {
+    width: "100%",
+    backgroundColor: "#d4ffc7",
+    padding: 5,
+    maxHeight: "100%",
+    gap: 5,
+
+  }
+});
+
+export default OrdersComponent;

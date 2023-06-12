@@ -16,9 +16,6 @@ const ProductCard = ({
   amount,
   onPress,
   Liked,
-  date,
-  onPickDate,
-  product,
   trash,
   onPressDelete,
   onSelectDate,
@@ -51,7 +48,7 @@ const ProductCard = ({
         }}
       >
         <TouchableOpacity onPress={onPress}>
-          {isLiked ? (
+          {Liked ? (
             <AntDesign name="heart" size={15} color="red" />
           ) : (
             <AntDesign name="hearto" size={15} />

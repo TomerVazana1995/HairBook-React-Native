@@ -5,12 +5,14 @@ import { TouchableOpacity } from "react-native";
 import axios from "axios";
 import { UserContext } from "../context/context";
 import { AntDesign } from "@expo/vector-icons";
+import StarRating from "react-native-star-rating-widget";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const WorkerCard = () => {
   const animation = useRef(new Animated.Value(0)).current;
   const [employees, setEmployees] = useState([]);
+  const [rating, setRating] = useState(0);
 
   const { user } = useContext(UserContext);
 
@@ -76,6 +78,7 @@ const WorkerCard = () => {
                 <Text style={{fontWeight: 500}}>{employee.rank}</Text>
                 <AntDesign name="star" color="#FFD400" />
               </View>
+              <StarRating rating={rating} onChange={setRating} starSize={20}/>
             </View>
           </Animated.View>
         </TouchableOpacity>

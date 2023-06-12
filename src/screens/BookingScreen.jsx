@@ -191,19 +191,19 @@ const BookingScreen = () => {
   };
 
   return (
+    <ScrollView style={{backgroundColor: "#f8f8f8"}}>
     <BottomSheetModalProvider>
       <View style={[styles.root]}>
         <View>
           <Text style={styles.title}>הזמנת תור</Text>
-          <Text style={styles.text}>בחר סוג טיפול</Text>
+          <Text style={styles.text}>סוג טיפול</Text>
           <View
             style={{
               flexDirection: "row-reverse",
               flexWrap: "wrap",
               justifyContent: "center",
             }}
-          >
-            <ScrollView horizontal>
+          >     
               {services.map((service, index) => (
                 <BookingDetailsComponent
                   key={index}
@@ -212,11 +212,10 @@ const BookingScreen = () => {
                   onPress={() => handlePickTreatment(service, index)}
                 />
               ))}
-            </ScrollView>
           </View>
           {isTreatmentPicked && (
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.text}>בחר עובד</Text>
+              <Text style={styles.text}>עובד</Text>
               <View
                 style={{
                   flexDirection: "row-reverse",
@@ -238,7 +237,7 @@ const BookingScreen = () => {
           )}
           {isEmployeePicked && (
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.text}>בחר תאריך</Text>
+              <Text style={styles.text}>תאריך</Text>
               <View
                 style={{
                   flexDirection: "row-reverse",
@@ -267,7 +266,7 @@ const BookingScreen = () => {
           )}
           {isDatePicked && (
             <View style={{ marginTop: 20 }}>
-              <Text style={styles.text}>בחר שעה</Text>
+              <Text style={styles.text}>שעה</Text>
               <View
                 style={{
                   flexDirection: "row-reverse",
@@ -275,24 +274,22 @@ const BookingScreen = () => {
                   justifyContent: "center",
                 }}
               >
-                <ScrollView horizontal>
                   {hours.map((hour, index) => (
                     <BookingDetailsComponent
                       key={index}
                       text={`${hour}`}
                       onPress={() => [setHour(hour), handlePresentModalPress()]}
                     />
-                  ))}
-                </ScrollView>
+                  ))}         
               </View>
             </View>
           )}
         </View>
         <View
-          style={{ position: "absolute", alignSelf: "center", bottom: "15%" }}
+          style={{ position: "relative", alignSelf: "center"}}
         >
           <Text
-            style={{ alignSelf: "center", marginTop: 50, marginBottom: 10 }}
+            style={{ alignSelf: "center", marginTop: 35, marginBottom: 10 }}
           >
             אין תור פנוי?
           </Text>
@@ -370,6 +367,7 @@ const BookingScreen = () => {
         </BottomSheetModal>
       </View>
     </BottomSheetModalProvider>
+    </ScrollView>
   );
 };
 
@@ -378,6 +376,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     backgroundColor: "#f8f8f8",
+    padding: 15
   },
   title: {
     fontSize: 30,
@@ -388,7 +387,8 @@ const styles = StyleSheet.create({
   text: {
     alignSelf: "flex-end",
     marginBottom: 10,
-    fontWeight: "bold",
+    fontSize: 18,
+    marginRight: 10
   },
   container: {
     flex: 1,
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     textAlign: "center",
-    gap: 10,
+    gap: 15,
   },
   modalText: {
     fontSize: 20,

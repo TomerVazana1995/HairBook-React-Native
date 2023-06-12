@@ -87,6 +87,7 @@ const ShopScreen = () => {
           }
         }
       }
+      product.liked = true;
       likedProducts.push(product);
       console.log("after push:", likedProducts);
       await AsyncStorage.setItem(
@@ -94,6 +95,7 @@ const ShopScreen = () => {
         JSON.stringify(likedProducts)
       );
       Alert.alert("שמרנו בשבילך את המוצר במועדפים");
+      
     } catch (error) {
       console.log("Error: ", error);
     }

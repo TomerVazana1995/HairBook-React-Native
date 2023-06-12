@@ -79,11 +79,6 @@ const MapComponent = () => {
 
   const mapRef = useRef(null);
 
-  useEffect(() => {
-    getBuisinessAddress();
-    getCurrentLocation();
-  }, []);
-
   const getBuisinessAddress = async () => {
     try {
       const response = await axios.get(
@@ -117,7 +112,7 @@ const MapComponent = () => {
           latitude,
         });
         console.log(regionName);
-        setCurrentLocation(`${regionName[0].city} ${regionName[0].street}  ${regionName[0].streetNumber}`)
+        setOrigin(`${regionName[0].city} ${regionName[0].street}  ${regionName[0].streetNumber}`)
       }
     } catch (error) {
       console.log(error);
@@ -185,14 +180,14 @@ const MapComponent = () => {
             onPlaceSelected={(details) => {
               onPlaceSelected(details, "מיקום נוכחי");
             }}
-            address={currentLocation}
+            address={origin}
           />
           <GoogleAutoComplete
             label="יעד"
             onPlaceSelected={(details) => {
               onPlaceSelected(details, "יעד");
             }}
-            address={address}
+            address={destination}
           />
           <TouchableOpacity style={styles.button} onPress={traceRoute}>
             <Text style={styles.buttonText}>נווט ליעד</Text>

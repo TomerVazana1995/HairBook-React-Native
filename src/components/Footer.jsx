@@ -8,6 +8,7 @@ import { UserContext } from "../context/context";
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const Footer = () => {
+  
   const [details, setDetails] = useState({});
 
   const {user} = useContext(UserContext);
