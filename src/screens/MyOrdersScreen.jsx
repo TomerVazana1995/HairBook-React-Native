@@ -13,9 +13,9 @@ const MyOrdersScreen = () => {
       <View style={styles.root}>
         <Text style={styles.title}>ההזמנות שלך</Text>
         <HStack style={{ alignItems: "center", gap: 3 }}>
-          <Text style={{fontFamily: "Arial Hebrew"}}>כל ההזמנות</Text>
+          <Text style={{fontFamily: "Arial Hebrew", fontSize: 16}}>כל ההזמנות</Text>
           <Switch value={future} onChange={() => setFuture((prev) => !prev)} />
-          <Text style={{fontFamily: "Arial Hebrew"}}>הזמנות שמחכות לך</Text>
+          <Text style={{fontFamily: "Arial Hebrew", fontSize: 16}}>הזמנות שמחכות לך</Text>
         </HStack>
         <OrdersComponent future={future} />
       </View>
@@ -32,9 +32,11 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   title: {
-    fontSize: 30,
-    fontWeight: 500,
-    fontFamily: "Avenir Next"
+    fontWeight: 400,
+    fontSize: 40,
+    marginBottom: 20,
+    fontFamily: "Arial Hebrew",
+    letterSpacing: 1,
   },
 });
 

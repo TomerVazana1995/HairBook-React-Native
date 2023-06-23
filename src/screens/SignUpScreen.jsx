@@ -20,7 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { Dropdown } from "react-native-element-dropdown";
-import { AntDesign } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const data = [];
 
@@ -147,7 +147,7 @@ const SignUpScreen = () => {
   const renderLabel = () => {
     if (selectedHairSalon || isOpen) {
       return (
-        <Text style={[styles.label, isOpen && { color: "orange" }]}>מספרה</Text>
+        <Text style={[{position: "absolute", right: 10} ,isOpen && { color: "#3495eb", position: "absolute", right: 10 }]}>מספרה</Text>
       );
     }
     return null;
@@ -217,7 +217,7 @@ const SignUpScreen = () => {
               <View style={styles.dropdownContainer}>
                 {renderLabel()}
                 <Dropdown
-                  style={[styles.dropdown, isOpen && { borderColor: "orange" }]}
+                  style={[styles.dropdown, isOpen && { borderColor: "#3495eb" }]}
                   data={data}
                   maxHeight={300}
                   placeholderStyle={styles.placeholderStyle}
@@ -230,12 +230,12 @@ const SignUpScreen = () => {
                   value={selectedHairSalon}
                   onChange={(item) => handleHairSalonChange(item)}
                   renderLeftIcon={() => (
-                    <AntDesign
-                      style={styles.icon}
-                      color="black"
-                      name="Safety"
-                      size={20}
-                    />
+                    <MaterialCommunityIcons
+                    style={styles.icon}
+                    color="#849aad"
+                    name="hair-dryer"
+                    size={30}
+                  />
                   )}
                 />
               </View>
@@ -327,10 +327,6 @@ const SignUpScreen = () => {
           />
         </View>
       </ScrollView>
-
-      {/* <View style={{ justifyContent: "flex-end" }}>
-        <Footer />
-      </View> */}
     </View>
   );
 };
@@ -404,7 +400,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 15,
+    textAlign: "right",
   },
   placeholderStyle: {
     fontSize: 15,

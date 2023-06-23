@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 const OurTeamScreen = () => {
   return (
     <View style={styles.root}>
-      <Text style={styles.title}>Our Team</Text>
+      <Text style={styles.title}>הצוות שלנו</Text>
       <WorkerCard />
       <View style={{ width: "100%", justifyContent: "flex-end", flex: 1 }}>
         <Footer />
@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 20,
     padding: 20,
+    fontFamily: "Arial Hebrew"
   },
 });
 

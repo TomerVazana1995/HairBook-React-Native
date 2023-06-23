@@ -26,7 +26,7 @@ const HomeScreen = () => {
     <View
       style={{ backgroundColor: "#f8f8f8", flex: 1, flexDirection: "column" }}
     >
-      <Heading alignSelf="center" paddingTop={15}>ברוכים הבאים למספרת אריק חסון</Heading>
+      <Heading fontFamily="Arial Hebrew" alignSelf="center" paddingTop={15}>ברוכים הבאים למספרת אריק חסון</Heading>
       <View style={{ marginVertical: 50 }}>
         <CustomCarusel data={data} />
       </View>
@@ -36,7 +36,7 @@ const HomeScreen = () => {
           bg="#3770B4"
           width="40%"
           alignSelf="center"
-          style={{ borderRadius: 15, marginHorizontal: 5 }}
+          style={{ borderRadius: 5, marginHorizontal: 5 }}
           onPress={() => {
             navigation.navigate("map");
           }}
@@ -47,7 +47,7 @@ const HomeScreen = () => {
           variant="outline"
           width="40%"
           alignSelf="center"
-          style={{ borderRadius: 15, marginHorizontal: 5 }}
+          style={{ borderRadius: 5, marginHorizontal: 5 }}
           onPress={() => {
             navigation.navigate("Business details");
           }}

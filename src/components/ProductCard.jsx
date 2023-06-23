@@ -122,7 +122,7 @@ const ProductCard = ({
             borderWidth={1}
             borderColor="#CDCDCD"
             backgroundColor="white"
-            width="70%"
+            width="80%"
           >
             <Modal.CloseButton onPress={closeModal} />
             <Modal.Header
@@ -130,25 +130,27 @@ const ProductCard = ({
               backgroundColor="white"
               width="100%"
               alignItems="center"
+              fontFamily="Arial Hebrew"
             >
               {name}
             </Modal.Header>
             <Modal.Body alignItems="center">
               <Image style={styles.image} source={image} resizeMode="contain" />
-              <View>
+              <View style={{gap: 5}}>
                 <Text style={{ textAlign: "center", fontWeight: 500 }}>
                   {description}
                 </Text>
-                <Text style={{ textAlign: "center", fontWeight: 500 }}>
+                <Text style={{ textAlign: "center", fontWeight: 500, paddingBottom: 20 }}>
                   מחיר: {price} ש"ח ליחידה
                 </Text>
               </View>
-              <Text style={{ marginTop: 10 }}>כמות</Text>
+              <Text style={{ fontFamily: "Arial Hebrew", color: "#78807a" }}>כמות</Text>
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "center",
                   alignItems: "center",
+                  paddingBottom: 20
                 }}
               >
                 <TouchableOpacity onPress={onPressDiffAmount}>
@@ -165,13 +167,13 @@ const ProductCard = ({
                     alignItems: "center",
                   }}
                 >
-                  <Text style={{ fontWeight: "bold" }}>{orderAmount}</Text>
+                  <Text style={{ fontFamily: "Arial Hebrew", fontSize: 18 }}>{orderAmount}</Text>
                 </View>
                 <TouchableOpacity onPress={onPressAddAmount}>
                   <AntDesign name="plus" size={20} />
                 </TouchableOpacity>
               </View>
-              <Text>בחר תאריך לאסוף את המוצר</Text>
+              <Text style={{fontFamily: "Arial Hebrew", paddingBottom: 10, color: "#78807a"}}>בחר תאריך לאיסוף המוצר</Text>
               <Datepicker date={pickUpDate} onSelect={onSelectDate} />
             </Modal.Body>
             <Modal.Footer justifyContent="center">
@@ -203,6 +205,7 @@ const styles = StyleSheet.create({
     width: "45%",
     height: undefined,
     aspectRatio: 1,
+    padding: 0
   },
   name: {
     alignSelf: "center",
@@ -210,18 +213,21 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 13,
     padding: 5,
+    fontFamily: "Arial Hebrew"
   },
   price: {
     fontSize: 14,
     color: "#555",
     fontWeight: 600,
     paddingTop: 5,
+    fontFamily: "Arial Hebrew"
   },
   amount: {
     fontSize: 14,
     color: "#555",
     fontWeight: 600,
     paddingBottom: 5,
+    fontFamily: "Arial Hebrew"
   },
   cartButton: {
     alignItems: "center",
@@ -235,6 +241,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     fontSize: 14,
+    fontFamily: "Arial Hebrew"
   },
   modal: {
     borderWidth: 1,

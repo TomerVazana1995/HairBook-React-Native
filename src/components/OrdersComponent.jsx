@@ -25,9 +25,9 @@ const OrdersComponent = ({ future = false }) => {
         `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=1`
       );
       console.log("all", response.data);
-      setAllOrders(response.data);
+      setAllOrders([]);
     } catch (error) {
-      console.loh(error);
+      console.log(error);
     }
   };
 
@@ -37,24 +37,37 @@ const OrdersComponent = ({ future = false }) => {
         `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
       );
       console.log("future", response.data);
-      setFutureOrders(response.data);
-    } catch (error) {}
+      setFutureOrders([]);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const AllOrders = () => {
     if (allOrders.length === 0) {
       return (
-        <View style={styles.container}>
+        <View style={{ gap: 30, width: "80%", paddingTop: 30 }}>
           <Text
-            style={{ textAlign: "center", fontSize: 25, alignItems: "center", fontFamily: "American Typewriter" }}
+            style={{
+              textAlign: "center",
+              fontSize: 25,
+              alignItems: "center",
+              fontFamily: "Arial Hebrew",
+            }}
           >
             עדיין לא הזמנת מהמוצרים שלנו? מהרו להזמין מהחנות שלנו
           </Text>
           <View style={{ alignItems: "center" }}>
-            <Text style={{ textAlign: "center" }}>לחץ כאן להזמנת מוצר</Text>
+            <Text style={{ textAlign: "center", fontSize: 17 }}>לחץ כאן להזמנת מוצר</Text>
             <Button
-              bgColor="#3770b4"
-              w="80%"
+              w="70%"
+              _text={{
+                color: "#000",
+                fontSize: "lg",
+                alignItems: "center",
+                letterSpacing: 1,
+              }}
+              bgColor="#91ED8F"
               onPress={() => navigation.navigate("חנות מוצרים")}
             >
               להזמנת מוצר
@@ -94,10 +107,16 @@ const OrdersComponent = ({ future = false }) => {
             נראה שאין הזמנות שמחכות על שמך, מהר להזמין לפני שנגמר המלאי
           </Text>
           <View style={{ alignItems: "center" }}>
-            <Text style={{ textAlign: "center" }}>לחץ כאן להזמנת מוצר</Text>
+            <Text style={{ textAlign: "center", fontSize: 17 }}>לחץ כאן להזמנת מוצר</Text>
             <Button
-              bgColor="#3770b4"
-              w="80%"
+              w="70%"
+              _text={{
+                color: "#000",
+                fontSize: "lg",
+                alignItems: "center",
+                letterSpacing: 1,
+              }}
+              bgColor="#91ED8F"
               onPress={() => navigation.navigate("חנות מוצרים")}
             >
               להזמנת מוצר
@@ -151,31 +170,30 @@ const styles = StyleSheet.create({
     fontWeight: 600,
     fontSize: 18,
     paddingVertical: 10,
-    fontFamily: "Avenir Next"
+    fontFamily: "Arial Hebrew",
   },
   text: {
     textAlign: "center",
-    fontFamily: "Avenir Next"
+    fontFamily: "Arial Hebrew",
   },
   contentContainer: {
     alignItems: "center",
     textAlign: "center",
-    width: "100%"
+    width: "100%",
   },
   contentTitle: {
     textAlign: "center",
     padding: 15,
     fontSize: 20,
-    fontFamily: "Avenir Next"
-  }, 
+    fontFamily: "Arial Hebrew",
+  },
   bottomContainer: {
     width: "100%",
     backgroundColor: "#d4ffc7",
     padding: 5,
     maxHeight: "100%",
     gap: 5,
-
-  }
+  },
 });
 
 export default OrdersComponent;

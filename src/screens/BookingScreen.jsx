@@ -18,8 +18,6 @@ import {
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
 import { Datepicker, Icon, Input } from "@ui-kitten/components/ui";
-import { Dropdown } from "react-native-element-dropdown";
-import { AntDesign } from "@expo/vector-icons";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -289,7 +287,7 @@ const BookingScreen = () => {
           style={{ position: "relative", alignSelf: "center"}}
         >
           <Text
-            style={{ alignSelf: "center", marginTop: 35, marginBottom: 10 }}
+            style={{ alignSelf: "center", marginTop: 35, marginBottom: 10, fontFamily: "Arial Hebrew" }}
           >
             אין תור פנוי?
           </Text>
@@ -353,7 +351,7 @@ const BookingScreen = () => {
           onChange={handleSheetChanges}
         >
           <View style={styles.contentContainer}>
-            <Heading>פרטי הזמנת תור</Heading>
+            <Heading style={{fontFamily: "Arial Hebrew"}}>פרטי הזמנת תור</Heading>
             <Text style={styles.modalText}>טיפול: {treatmentName}</Text>
             <Text style={styles.modalText}>עובד: {employeeName}</Text>
             <Text style={styles.modalText}>
@@ -383,12 +381,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     alignSelf: "center",
     marginBottom: 30,
+    fontFamily: "Arial Hebrew"
   },
   text: {
     alignSelf: "flex-end",
     marginBottom: 10,
     fontSize: 18,
-    marginRight: 10
+    marginRight: 10,
+    fontFamily: "Arial Hebrew"
   },
   container: {
     flex: 1,
@@ -405,6 +405,7 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 20,
     fontWeight: 300,
+    fontFamily: "Arial Hebrew"
   },
   dropdown: {
     height: 50,
@@ -421,6 +422,7 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: 16,
+    fontFamily: "Arial Hebrew"
   },
   placeholderStyle: {
     fontSize: 16,

@@ -40,7 +40,7 @@ const BookingComponent = ({ future }) => {
         };
       });
 
-      setQueues(formattedQueues);
+      setQueues(response.data);
     } catch (error) {
       console.log("couldnt find client queues", error);
     }
@@ -74,15 +74,27 @@ const BookingComponent = ({ future }) => {
   const FutureQueues = () => {
     if (futureQueues.length === 0) {
       return (
-        <View style={{gap: 30, width: "80%", paddingTop: 30}}>
+        <View style={{ gap: 30, width: "80%", paddingTop: 30 }}>
           <Text style={styles.title}>
             עדיין לא קבעת תור? מהר להירשם לפני שכל התורים יתפסו
           </Text>
-          <View style={{alignItems: "center", gap: 10}}>
-          <Text style={{textAlign: "center"}}>לחץ כאן לקביעת תור</Text>
-          <Button bgColor="#3770b4" w="80%" onPress={() => navigation.navigate("קביעת תור")}>
-            לקביעת תור
-          </Button>
+          <View style={{ alignItems: "center", gap: 10 }}>
+            <Text style={{ textAlign: "center" }}>לחץ כאן לקביעת תור</Text>
+            <Button
+              w="70%"
+              _text={{
+                color: "#000",
+                fontSize: "lg",
+                alignItems: "center",
+                letterSpacing: 1,
+                padding: 0,
+            
+              }}
+              bgColor="#91ED8F"
+              onPress={() => navigation.navigate("קביעת תור")}
+            >
+              לקביעת תור
+            </Button>
           </View>
         </View>
       );
@@ -114,12 +126,49 @@ const BookingComponent = ({ future }) => {
   const AllQueues = () => {
     if (queues.length === 0) {
       return (
-        <View style={{textAlign: "center"}}>
+        <View
+          style={{
+            gap: 30,
+            width: "80%",
+            paddingTop: 30,
+            alignItems: "center",
+          }}
+        >
           <Text style={styles.title}>
             נראה שזו הפעם הראשונה שלך פה, למה אתה מחכה? קבע אצלנו תור
           </Text>
-          <Text style={{textAlign: "center"}}>לחץ כאן להזמנת תור</Text>
-          <Button>לקביעת תור</Button>
+          <View
+            style={{
+              alignItems: "center",
+              textAlign: "center",
+              width: "100%",
+              gap: 2,
+            }}
+          >
+            <Text
+              style={{
+                textAlign: "center",
+                fontFamily: "Arial Hebrew",
+                fontWeight: 500,
+                fontSize: 17
+              }}
+            >
+              לחץ כאן להזמנת תור
+            </Text>
+            <Button
+              w="70%"
+              _text={{
+                color: "#000",
+                fontSize: "lg",
+                alignItems: "center",
+                letterSpacing: 1,
+              }}
+              bgColor="#91ED8F"
+              onPress={() => navigation.navigate("קביעת תור")}
+            >
+              לקביעת תור
+            </Button>
+          </View>
         </View>
       );
     } else {
@@ -165,10 +214,12 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: 500,
     fontSize: 20,
-    textAlign: "center"
+    textAlign: "center",
+    fontFamily: "Arial Hebrew",
   },
   content: {
     textAlign: "center",
+    fontFamily: "Arial Hebrew",
   },
 });
 

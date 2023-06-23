@@ -64,7 +64,7 @@ const WorkerCard = () => {
           >
             <Avatar source={{ uri: employee.image }} size="lg" marginLeft={5} />
             <View style={{ flex: 1, gap: 5 }}>
-              <Text style={{ fontSize: 20, alignSelf: "center" }}>
+              <Text style={{ fontSize: 20, alignSelf: "center", fontFamily: "Arial Hebrew" }}>
                 {employee.firstName} {employee.lastName}
               </Text>
               <View
@@ -75,7 +75,7 @@ const WorkerCard = () => {
                   alignItems: "center",
                 }}
               >
-                <Text style={{fontWeight: 500}}>{employee.rank}</Text>
+                <Text style={{fontWeight: 400, fontFamily: "Arial Hebrew", fontSize: 20}}>{employee.rank}</Text>
                 <AntDesign name="star" color="#FFD400" />
               </View>
               <StarRating rating={rating} onChange={setRating} starSize={20}/>

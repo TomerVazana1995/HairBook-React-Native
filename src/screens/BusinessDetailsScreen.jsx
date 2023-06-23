@@ -1,16 +1,18 @@
 import { View, Text, StyleSheet } from "react-native";
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Heading, Button } from "native-base";
+import { Heading, Button, Modal } from "native-base";
 import Footer from "../components/Footer";
 import axios from "axios";
 import { UserContext } from "../context/context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const BusinessDetailsScreen = () => {
   const [details, setDetails] = useState({});
   const [workTime, setWorkTime] = useState([]);
+  const [isFirstTime, setIsFirstTime] = useState(false)
 
   const { user } = useContext(UserContext);
 
@@ -18,6 +20,10 @@ const BusinessDetailsScreen = () => {
 
   useEffect(() => {
     getBuisinessDetails();
+    const flag = checkIfFirstTime()
+    if(flag){
+      setIsFirstTime(true)
+    }
   }, []);
 
   const getBuisinessDetails = () => {
@@ -74,6 +80,25 @@ const BusinessDetailsScreen = () => {
       });
   };
 
+  async function checkIfFirstTime(){
+    try {
+      const flag = await AsyncStorage.getItem("isLoggedInBefore");
+      flag = JSON.parse(flag)
+      console.log("is first time?", flag)
+      return flag;
+    } catch (error) {
+      console.log(`error: ${error}`)
+    }
+  }
+
+  async function setFirstTime(){
+    try {
+      await AsyncStorage.setItem("isLoggedInBefore", JSON.stringify(true))      
+    } catch (error) {
+      console.log(`error: ${error}`)
+    }
+  }
+
   return (
     <View style={styles.root}>
       <Heading textAlign="center" padding={15}>
@@ -91,7 +116,7 @@ const BusinessDetailsScreen = () => {
         <Text style={[styles.text, { fontWeight: "bold" }]}>זמני פעילות: </Text>
         {workTime.map((dayWorkTime, index) => (
           <Text key={index} style={[styles.text]}>
-            {dayWorkTime.day}: {dayWorkTime.fromHour} - {dayWorkTime.toHour}
+            {dayWorkTime.day}: {dayWorkTime.toHour} - {dayWorkTime.fromHour}
           </Text>
         ))}
       </View>
@@ -106,6 +131,14 @@ const BusinessDetailsScreen = () => {
       >
         נווט לבית העסק
       </Button>
+      {
+        isFirstTime &&
+            <Modal>
+              <Modal.Body>
+                <View><Text>feeffef</Text></View>
+              </Modal.Body>
+            </Modal>
+        }
       <View style={styles.footer}>
         <Footer />
       </View>

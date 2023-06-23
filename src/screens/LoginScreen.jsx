@@ -21,6 +21,7 @@ import OTPInputView from "@twotalltotems/react-native-otp-input";
 import { Pressable } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { AntDesign } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -47,7 +48,11 @@ const LoginScreen = () => {
 
   useEffect(() => {
     getAllHairSalon();
-  },[])
+  }, []);
+
+  useEffect(() => {
+    console.log(phoneNum);
+  }, [phoneNum]);
 
   const saveUserLoggedIn = async () => {
     if (isChecked) {
@@ -57,22 +62,23 @@ const LoginScreen = () => {
   };
 
   const getOTPcode = () => {
-    //setClearInputs(false);
     setModalVisible(true);
     axios
-      .get(`${baseUrl}/Client/GetCode?phoneNum=${phoneNum}`)
+      .get(
+        `${baseUrl}/Client/GetCode?phoneNum=${phoneNum}&hairSalonId=1`
+      )
       .then(function (response) {
-        console.log("your otp code",response.data);
+        console.log("your otp code", response.data);
         setOTPCode(response.data);
       })
       .catch(function (error) {
-        console.log(error);
+        console.log("the error is here:", error);
       });
   };
 
   const login = () => {
     axios
-      .get(`${baseUrl}/Client/${phoneNum}`)
+      .get(`${baseUrl}/Client/${phoneNum}/${selectedHairSalon.value}`)
       .then(function (response) {
         // handle success
         console.log(response.data);
@@ -86,7 +92,7 @@ const LoginScreen = () => {
             birthDate: response.data.birthDate,
             image: response.data.image,
             gender: response.data.gender,
-            hairSalonId: response.data.hairSalonId
+            hairSalonId: response.data.hairSalonId,
           });
           console.log();
         }
@@ -98,24 +104,14 @@ const LoginScreen = () => {
       });
   };
 
-  function validCodeView() {
-    setValidCode(true);
-    setDisabled(false);
-  }
-
-  function notValidCodeView(){
-    setValidCode(false)
-    setDisabled(true)
-  }
-
   const getAllHairSalon = async () => {
     try {
       const response = await axios.get(`${baseUrl}/HairSalon/GetAllHairSalons`);
       setHairSalons(response.data);
       response.data.map((hairSalon) => {
         data.push({ lable: hairSalon.salonName, value: hairSalon.id });
-      })
-      console.log(hairSalons)
+      });
+      console.log(hairSalons);
     } catch (error) {
       console.log(error);
     }
@@ -124,18 +120,15 @@ const LoginScreen = () => {
   const renderLabel = () => {
     if (selectedHairSalon || isOpen) {
       return (
-        <Text style={[styles.label, isOpen && { color: "orange" }]}>
-          מספרה
-        </Text>
+        <Text style={[{position: "absolute", right: 10} ,isOpen && { color: "#3495eb", position: "absolute", right: 10 }]}>מספרה</Text>
       );
     }
     return null;
   };
 
-    const handleHairSalonChange = (item) => {
+  const handleHairSalonChange = (item) => {
     setSelectedHairSalon(item);
   };
-  
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -158,31 +151,31 @@ const LoginScreen = () => {
               onChangeText={(text) => setPhoneNum(text)}
               autoFocus={false}
             />
-              <View style={styles.dropdownContainer}>
-                {renderLabel()}
-                <Dropdown
-                  style={[styles.dropdown, isOpen && { borderColor: "orange" }]}
-                  data={data}
-                  maxHeight={300}
-                  placeholderStyle={styles.placeholderStyle}
-                  selectedTextStyle={styles.selectedTextStyle}
-                  placeholder={!isOpen ? "מספרה" : "..."}
-                  labelField="lable"
-                  valueField="value"
-                  onFocus={() => setIsOpen(true)}
-                  onBlur={() => setIsOpen(false)}
-                  value={selectedHairSalon}
-                  onChange={(item) => handleHairSalonChange(item)}
-                  renderLeftIcon={() => (
-                    <AntDesign
-                      style={styles.icon}
-                      color="black"
-                      name="Safety"
-                      size={20}
-                    />
-                  )}
-                />
-              </View>
+            <View style={styles.dropdownContainer}>
+              {renderLabel()}
+              <Dropdown
+                style={[styles.dropdown, isOpen && { borderColor: "#3495eb" }]}
+                data={data}
+                maxHeight={300}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                placeholder={!isOpen ? "מספרה" : "..."}
+                labelField="lable"
+                valueField="value"
+                onFocus={() => setIsOpen(true)}
+                onBlur={() => setIsOpen(false)}
+                value={selectedHairSalon}
+                onChange={(item) => handleHairSalonChange(item)}
+                renderLeftIcon={() => (
+                  <MaterialCommunityIcons
+                    style={styles.icon}
+                    color="#849aad"
+                    name="hair-dryer"
+                    size={30}
+                  />
+                )}
+              />
+            </View>
             <View style={styles.saveUserBox}>
               <Checkbox
                 flexDirection="row-reverse"
@@ -227,14 +220,20 @@ const LoginScreen = () => {
                   codeInputFieldStyle={styles.underlineStyleBase}
                   codeInputHighlightStyle={styles.underlineStyleHighLighted}
                   onCodeFilled={(code) => {
-                    if(code == OTPcode){
-                      alert("code is valid");
+                    if (code == OTPcode) {
                       setDisabled(false);
+                      setValidCode(true);
+                    } else {
+                      alert("code is not valid");
                     }
                   }}
                   editable={true}
                   autoFocusOnLoad={false}
-                  clearInputs={clearInputs}
+                  onCodeChanged={(code) => {
+                    code.length <= 3
+                      ? [setValidCode(false), setDisabled(true)]
+                      : null;
+                  }}
                 />
                 {validCode ? (
                   <CheckIcon size="10" mt="0.5" color="emerald.500" />
@@ -313,7 +312,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 8,
     backgroundColor: "#F5F8FE",
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   dropdownContainer: {
     backgroundColor: "white",
@@ -321,9 +320,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   selectedTextStyle: {
-    fontSize: 16,
-    position: "absolute",
-    right: 20,
+    fontSize: 15,
+    textAlign: "right",
   },
   placeholderStyle: {
     fontSize: 15,
@@ -331,6 +329,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
   },
+  icon: {
+    paddingLeft: 9
+  }
 });
 
 export default LoginScreen;

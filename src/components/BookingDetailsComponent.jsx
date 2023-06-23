@@ -5,7 +5,7 @@ const BookingDetailsComponent = ({text, onPress, index, color="white"}) => {
   return (
     <TouchableOpacity key={index} onPress={onPress}>
       <View style={[styles.container, {backgroundColor: color}]}>
-        <Text>{text}</Text>
+        <Text style={styles.text}>{text}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -28,6 +28,10 @@ const styles = StyleSheet.create({
     width: 100,
     alignItems: "center"
   },
+  text: {
+    fontFamily: "Arial Hebrew",
+    fontSize: 15,
+  }
 });
 
 export default BookingDetailsComponent;
