@@ -16,11 +16,6 @@ import Constants from "expo-constants";
 import MapViewDirections from "react-native-maps-directions";
 import { TouchableWithoutFeedback } from "react-native";
 import { Keyboard } from "react-native";
-import axios from "axios";
-import { UserContext } from "../context/context";
-import * as Location from "expo-location";
-
-const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const { width, height } = Dimensions.get("window");
 
@@ -44,7 +39,7 @@ const edgePadding = {
   bottom: edgePaddingValue,
 };
 
-function GoogleAutoComplete({ label, placeholder, onPlaceSelected, address }) {
+function GoogleAutoComplete({ label, placeholder, onPlaceSelected }) {
   return (
     <>
       <Text style={{ alignSelf: "flex-end" }}>{label}</Text>
@@ -52,72 +47,28 @@ function GoogleAutoComplete({ label, placeholder, onPlaceSelected, address }) {
         styles={{ textInput: styles.input }}
         placeholder={placeholder}
         fetchDetails
-        onPress={(data, details = null) => {
+        onPress={(data, details ) => {
           onPlaceSelected(details);
         }}
         query={{
           key: GOOGLE_API_KEY,
           language: "he",
         }}
-        textInputProps={{ value: address }}
       />
     </>
   );
 }
 
 const MapComponent = () => {
-  const [origin, setOrigin] = useState(null);
+  
+  const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [showDirections, setShowDirections] = useState(false);
   const [distance, setDistance] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  const [currentLocation, setCurrentLocation] = useState(null);
-  const [address, setAddress] = useState("");
-
-  const { user } = useContext(UserContext);
-
   const mapRef = useRef(null);
 
-  const getBuisinessAddress = async () => {
-    try {
-      const response = await axios.get(
-        `${baseUrl}/HairSalon/getHairSalonInfo?hairSalonId=${user.hairSalonId}`
-      );
-      setAddress(`${response.data.address} ${response.data.city}`);
-      console.log(address);
-    } catch (error) {
-      console.log("this is the error", error);
-    }
-  };
-
-  const getCurrentLocation = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      console.log(status);
-      if (status !== "granted") {
-        alert("permission to access location was denied");
-        return;
-      }
-
-      Location.setGoogleApiKey(GOOGLE_API_KEY);
-
-      let { coords } = await Location.getCurrentPositionAsync();
-      console.log(coords);
-
-      if (coords) {
-        let { longitude, latitude } = coords;
-        let regionName = await Location.reverseGeocodeAsync({
-          longitude,
-          latitude,
-        });
-        console.log(regionName);
-        setOrigin(`${regionName[0].city} ${regionName[0].street}  ${regionName[0].streetNumber}`)
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const moveTo = async (position) => {
     const camera = await mapRef.current?.getCamera();
@@ -133,6 +84,7 @@ const MapComponent = () => {
       latitude: details.geometry.location.lat || 0,
       longitude: details.geometry.location.lng || 0,
     };
+    console.log(position)
     set(position);
     moveTo(position);
   };
@@ -178,16 +130,15 @@ const MapComponent = () => {
           <GoogleAutoComplete
             label="מיקום נוכחי"
             onPlaceSelected={(details) => {
+              console.log(details)
               onPlaceSelected(details, "מיקום נוכחי");
             }}
-            address={origin}
           />
           <GoogleAutoComplete
             label="יעד"
             onPlaceSelected={(details) => {
               onPlaceSelected(details, "יעד");
             }}
-            address={destination}
           />
           <TouchableOpacity style={styles.button} onPress={traceRoute}>
             <Text style={styles.buttonText}>נווט ליעד</Text>

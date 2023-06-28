@@ -23,7 +23,7 @@ const ShopScreen = () => {
     navigation.setOptions({
       headerSearchBarOptions: {
         placeholder: "חיפוש",
-        onChangeText: (event) => handleFilter(event.nativeEvent.text),
+        onChangeText: (event) => searchFilterFunction(event.nativeEvent.text),
       },
     });
   }, [navigation]);
@@ -56,17 +56,21 @@ const ShopScreen = () => {
       })
   };
 
-  const handleFilter = (searchTerm) => {
-    setProducts(
-      products.filter((product) =>
-        product.productName.toUpperCase().includes(searchTerm.toUpperCase())
-      )
-    );
-  };
+  const searchFilterFunction = (text) => {
+    if(text){
+      const newData = products.filter(product => {
+        const productData = product.productName ? 
+         product.productName.toUpperCase() : ''.toUpperCase()
+         const textData = text.toUpperCase()
+         return productData.indexOf(textData) > -1
+      })
+      setFilteredProducts(newData)
+    } else {
+      setFilteredProducts(products)
+    }
+  }
 
-  const onClose = () => {
-    setProductAmount(0);
-  };
+
 
   const handleLikeProduct = async (product) => {
     try {
@@ -138,7 +142,7 @@ const ShopScreen = () => {
             justifyContent: "center",
           }}
         >
-          {products.map((product, index) => (
+          {filteredProducts.map((product, index) => (
             <ProductCard
               key={product.productNum}
               index={index}

@@ -91,13 +91,13 @@ export default function App() {
   const [user, setUser] = useState({
     firstName: "",
     lastName: "",
-    phoneNum: "0504483376",
+    phoneNum: "",
     image:
       "https://e7.pngegg.com/pngimages/178/595/png-clipart-user-profile-computer-icons-login-user-avatars-monochrome-black-thumbnail.png",
     birthDate: new Date(),
     gender: "",
     hairSalonId: 1,
-    token: "ExponentPushToken[KQAdpMPHXzMN23pRkqRZYZ]",
+    token: ""
   });
 
   
@@ -107,8 +107,9 @@ export default function App() {
   const getUserCredentials = async () => {
     try {
       const phoneNum = await AsyncStorage.getItem("phoneNum");
+      const hairSalonId = await AsyncStorage.getItem("hairSalonId")
       if (phoneNum !== null) {
-        return JSON.parse(phoneNum);
+      return [JSON.parse(phoneNum), JSON.parse(hairSalonId)];
       }
     } catch (error) {
       console.log(error);
@@ -118,11 +119,11 @@ export default function App() {
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 1500);
     getUserCredentials()
-      .then(function (phoneNum) {
-        console.log(phoneNum);
-        if (phoneNum) {
+      .then(function (data) {
+        console.log("data", data);
+        if (data) {
           axios
-            .get(`${baseUrl}/Client/${phoneNum}`)
+            .get(`${baseUrl}/Client/${data[0]}/${data[1]}`)
             .then(function (response) {
               console.log(response.data);
               setUser({
@@ -144,20 +145,20 @@ export default function App() {
             ...user,
             firstName: "",
             lastName: "",
-            phoneNum: "0504483376",
+            phoneNum: "",
             image:
               "https://e7.pngegg.com/pngimages/178/595/png-clipart-user-profile-computer-icons-login-user-avatars-monochrome-black-thumbnail.png",
             birthDate: new Date(),
             gender: "",
             hairSalonId: 1,
-            token: "ExponentPushToken[KQAdpMPHXzMN23pRkqRZYZ]",
+            token: "",
           });
         }
       })
       .catch(function (error) {
         console.log(error);
       })
-      .finally(() => console.log(user));
+      .finally(() => console.log("user: ",user));
   }, []);
 
   useLayoutEffect(() => {

@@ -13,6 +13,7 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 const LikedProductsScreen = () => {
   const [likedProducts, setLikedProducts] = useState([]);
   const [productsExists, setProductsExists] = useState(false);
+  const [filteredProducts, setFilteredProducts] = useState([])
 
   const isFocused = useIsFocused();
   const navigation = useNavigation();
@@ -21,7 +22,7 @@ const LikedProductsScreen = () => {
     navigation.setOptions({
       headerSearchBarOptions: {
         placeholder: "חיפוש",
-        onChangeText: (event) => handleFilter(event.nativeEvent.text),
+        onChangeText: (event) => searchFilterFunction(event.nativeEvent.text),
       },
     });
   }, [navigation]);
@@ -30,13 +31,21 @@ const LikedProductsScreen = () => {
     getLikedProducts();
   }, [isFocused, likedProducts]);
 
-  const handleFilter = (searchTerm) => {
-    setLikedProducts(
-      likedProducts.filter((product) =>
-        product.productName.toUpperCase().includes(searchTerm.toUpperCase())
-      )
-    );
-  };
+
+  const searchFilterFunction = (text) => {
+    if(text){
+      const newData = likedProducts.filter(product => {
+        const productData = product.productName ? 
+         product.productName.toUpperCase() : ''.toUpperCase()
+         const textData = text.toUpperCase()
+         return productData.indexOf(textData) > -1
+      })
+      setFilteredProducts(newData)
+    } else {
+      setFilteredProducts(likedProducts)
+    }
+  }
+
 
   const getLikedProducts = async () => {
     await AsyncStorage.getItem("likedProducts", (err, result) => {
@@ -84,7 +93,7 @@ const LikedProductsScreen = () => {
             }}
           >
             {productsExists ? (
-              likedProducts.map((product, index) => (
+              filteredProducts.map((product, index) => (
                 <ProductCard
                   key={index}
                   image={{ uri: product.image }}

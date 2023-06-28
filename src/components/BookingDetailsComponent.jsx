@@ -1,9 +1,11 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import React from "react";
+import React, {useState} from "react";
 
-const BookingDetailsComponent = ({text, onPress, index, color="white"}) => {
+const BookingDetailsComponent = ({text, onPress, index, onPressIn}) => {
+
+  const [color, setColor] = useState("white")
   return (
-    <TouchableOpacity key={index} onPress={onPress}>
+    <TouchableOpacity key={index} onPress={onPress} onPressIn={() => color === "#d4ffc7" ? setColor("white") : setColor("#d4ffc7")}>
       <View style={[styles.container, {backgroundColor: color}]}>
         <Text style={styles.text}>{text}</Text>
       </View>

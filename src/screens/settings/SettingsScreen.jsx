@@ -45,12 +45,8 @@ const SettingsScreen = () => {
           size="2xl"
         />
         <Text style={{ fontWeight: "bold", fontSize: 25, padding: 10, flexDirection: "row-reverse" }}>
-          {userContext.user.lastName} {userContext.user.firstName}
+          {userContext.user.firstName} {userContext.user.lastName}
         </Text>
-        <CustomButton
-          text="עדכן פרטים אישיים"
-          onPress={() => navigation.navigate("PersonalDetails screen")}
-        />
       </View>
       <View
         style={{
@@ -71,7 +67,6 @@ const SettingsScreen = () => {
           אפשרויות
         </Text>
       </View>
-      <SettingsOption icon="notifications" text="התראות" visible={true} />
       <SettingsOption icon="notifications" text="התנתק" onPress={logOut} />
       <SettingsOption icon="notifications" text="מחק משתמש" color="red" />
     </View>

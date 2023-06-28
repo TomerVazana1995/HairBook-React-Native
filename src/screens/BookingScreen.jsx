@@ -18,6 +18,7 @@ import {
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
 import { Datepicker, Icon, Input } from "@ui-kitten/components/ui";
+import * as Calendar from "expo-calendar";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -73,6 +74,21 @@ const BookingScreen = () => {
     getDateHours();
   }, [employee]);
 
+  function disabledDatesModal() {
+    const date = new Date();
+    const vacationDay = [];
+    for (let index = 0; index < 7; index++) {
+      if (date.getDate === 2) {
+        for (let index = 0; index < 12; index++) {
+          console.log(index);
+          vacationDay.push(date);
+          date.setDate(date + 7);
+        }
+      }
+    }
+    return vacationDay;
+  }
+
   const getServicesInfo = () => {
     axios
       .get(`${baseUrl}/Service?hairSalonId=${user.hairSalonId}`)
@@ -88,7 +104,7 @@ const BookingScreen = () => {
   const getDateHours = async () => {
     try {
       const response = await axios.get(
-        `${baseUrl}/Queue/GetAvailableTimes?serviceNum=${treatment}&phoneNum=${employee.phoneNum}&Date=2023-05-17T10:15:09.950Z&hairSalonId=${user.hairSalonId}`
+        `${baseUrl}/Queue/GetAvailableTimes?serviceNum=${treatment}&phoneNum=${employee.phoneNum}&Date=${date}&hairSalonId=${user.hairSalonId}`
       );
       setHours(response.data);
       response.data.map((item, index) => {
@@ -141,7 +157,46 @@ const BookingScreen = () => {
     console.log("handleSheetChanges", index);
   }, []);
 
-  const orderQueue = (hour) => {
+  async function getDefaultCalendarSource() {
+    const defaultCalendar = await Calendar.getDefaultCalendarAsync();
+    return defaultCalendar.source;
+  }
+
+  async function createCalendar() {
+    const defaultCalendarSource =
+      Platform.OS === "ios"
+        ? await getDefaultCalendarSource()
+        : { isLocalAccount: true, name: "Expo Calendar" };
+    const newCalendarID = await Calendar.createCalendarAsync({
+      title: "Expo Calendar",
+      color: "blue",
+      entityType: Calendar.EntityTypes.EVENT,
+      sourceId: defaultCalendarSource.id,
+      source: defaultCalendarSource,
+      name: "internalCalendarName",
+      ownerAccount: "personal",
+      accessLevel: Calendar.CalendarAccessLevel.OWNER,
+      isVisible: true,
+    });
+    console.log(`Your new calendar ID is: ${newCalendarID}`);
+    return newCalendarID;
+  }
+
+  async function openCalendarEvent(eventId) {
+    try {
+      const eventInCalendar = await Calendar.getEventAsync(eventId);
+      if (eventInCalendar) {
+        Calendar.openEventInCalendar(eventInCalendar.id);
+        console(eventInCalendar.id);
+      } else {
+        console.log("Event not found in the calendar");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const orderQueue = async (hour) => {
     axios
       .post(`${baseUrl}/Queue/OrderQueue?hairSalonId=${user.hairSalonId}`, {
         date: date,
@@ -152,11 +207,26 @@ const BookingScreen = () => {
       })
       .then((response) => {
         console.log(response);
-        Alert.alert("הזמנת תור", "התור הוזמן בהצלחה", [
-          { text: "OK", onPress: () => navigation.navigate("דף הבית") },
-        ]);
+        Alert.alert("הזמנת תור");
       })
       .catch((error) => console.log(error));
+    (async () => {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status === "granted") {
+        const calendars = await Calendar.getCalendarsAsync(
+          Calendar.EntityTypes.EVENT
+        );
+        console.log("Here are all your calendars:");
+        console.log({ calendars });
+      }
+    })();
+    try {
+      const calendarId = await createCalendar();
+      const eventId = await Calendar.createEventAsync(calendarId);
+      openCalendarEvent(eventId);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const enterWaitingList = async () => {
@@ -182,26 +252,20 @@ const BookingScreen = () => {
     }
   };
 
-  const checkHourPattern = (text) => {
-    const pattern = "/^(0[8-9]|1[0-8]):[0-5]d$/";
-    const regex = new RegExp(pattern);
-    return regex.test(text)
-  };
-
   return (
-    <ScrollView style={{backgroundColor: "#f8f8f8"}}>
-    <BottomSheetModalProvider>
-      <View style={[styles.root]}>
-        <View>
-          <Text style={styles.title}>הזמנת תור</Text>
-          <Text style={styles.text}>סוג טיפול</Text>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >     
+    <ScrollView style={{ backgroundColor: "#f8f8f8" }}>
+      <BottomSheetModalProvider>
+        <View style={[styles.root]}>
+          <View>
+            <Text style={styles.title}>הזמנת תור</Text>
+            <Text style={styles.text}>סוג טיפול</Text>
+            <View
+              style={{
+                flexDirection: "row-reverse",
+                flexWrap: "wrap",
+                justifyContent: "center",
+              }}
+            >
               {services.map((service, index) => (
                 <BookingDetailsComponent
                   key={index}
@@ -210,161 +274,170 @@ const BookingScreen = () => {
                   onPress={() => handlePickTreatment(service, index)}
                 />
               ))}
-          </View>
-          {isTreatmentPicked && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={styles.text}>עובד</Text>
-              <View
-                style={{
-                  flexDirection: "row-reverse",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                }}
-              >
-                {employees.map((employee, index) => (
-                  <BookingDetailsComponent
-                    key={index}
-                    text={`${employee.firstName} ${employee.lastName}`}
-                    onPress={() => {
-                      handlePickEmployee(employee);
+            </View>
+            {isTreatmentPicked && (
+              <View style={{ marginTop: 20 }}>
+                <Text style={styles.text}>עובד</Text>
+                <View
+                  style={{
+                    flexDirection: "row-reverse",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                  }}
+                >
+                  {employees.map((employee, index) => (
+                    <BookingDetailsComponent
+                      key={index}
+                      text={`${employee.firstName} ${employee.lastName}`}
+                      onPress={() => {
+                        handlePickEmployee(employee);
+                      }}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
+            {isEmployeePicked && (
+              <View style={{ marginTop: 20 }}>
+                <Text style={styles.text}>תאריך</Text>
+                <View
+                  style={{
+                    flexDirection: "row-reverse",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                  }}
+                >
+                  <DatePickerModal
+                    locale="he"
+                    mode="single"
+                    visible={openDateModal}
+                    onDismiss={onDismissSingle}
+                    date={date}
+                    onConfirm={onConfirmSingle}
+                    validRange={{
+                      disabledDates: disabledDatesModal(),
                     }}
                   />
-                ))}
+                  <BookingDetailsComponent
+                    text={`${new Date(date).toLocaleDateString()}`}
+                    onPress={() => setOpenDateModal(true)}
+                  />
+                </View>
               </View>
-            </View>
-          )}
-          {isEmployeePicked && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={styles.text}>תאריך</Text>
-              <View
-                style={{
-                  flexDirection: "row-reverse",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                }}
-              >
-                <DatePickerModal
-                  locale="he"
-                  mode="single"
-                  visible={openDateModal}
-                  onDismiss={onDismissSingle}
-                  date={date}
-                  onConfirm={onConfirmSingle}
-                  validRange={{
-                    startDate: new Date(),
-                    endDate: new Date("2023-06-30"),
+            )}
+            {isDatePicked && (
+              <View style={{ marginTop: 20 }}>
+                <Text style={styles.text}>שעה</Text>
+                <View
+                  style={{
+                    flexDirection: "row-reverse",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
                   }}
-                />
-                <BookingDetailsComponent
-                  text={`${new Date(date).toLocaleDateString()}`}
-                  onPress={() => setOpenDateModal(true)}
-                />
-              </View>
-            </View>
-          )}
-          {isDatePicked && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={styles.text}>שעה</Text>
-              <View
-                style={{
-                  flexDirection: "row-reverse",
-                  flexWrap: "wrap",
-                  justifyContent: "center",
-                }}
-              >
+                >
                   {hours.map((hour, index) => (
                     <BookingDetailsComponent
                       key={index}
                       text={`${hour}`}
                       onPress={() => [setHour(hour), handlePresentModalPress()]}
                     />
-                  ))}         
+                  ))}
+                </View>
               </View>
-            </View>
-          )}
-        </View>
-        <View
-          style={{ position: "relative", alignSelf: "center"}}
-        >
-          <Text
-            style={{ alignSelf: "center", marginTop: 35, marginBottom: 10, fontFamily: "Arial Hebrew" }}
-          >
-            אין תור פנוי?
-          </Text>
-          <Button
-            alignSelf="center"
-            backgroundColor="#3770B4"
-            onPress={() => setModalVisible(true)}
-          >
-            לחץ כאן לרשימת המתנה
-          </Button>
-          <Modal
-            backdropVisible={false}
-            isOpen={modalVisible}
-            avoidKeyboard
-            justifyContent="center"
-            size="lg"
-          >
-            <Modal.Content
-              borderWidth={1}
-              borderColor="#CDCDCD"
-              backgroundColor="white"
-              width="70%"
-            >
-              <Modal.CloseButton onPress={() => setModalVisible(false)} />
-              <Modal.Header
-                alignSelf="center"
-                backgroundColor="white"
-                width="100%"
-                alignItems="center"
-              >
-                בחר תאריך ושעה
-              </Modal.Header>
-              <Modal.Body style={{ gap: 10 }}>
-                <Datepicker
-                  placeholder="תאריך"
-                  onSelect={(date) => setDate(date)}
-                  accessoryLeft={(props) => <Icon {...props} name="calendar" />}
-                  controlStyle={{ paddingVertical: 10 }}
-                  date={date}
-                />
-                <Input
-                  placeholder="שעה"
-                  accessoryLeft={(props) => (
-                    <Icon {...props} name="clock-outline" />
-                  )}
-                  textAlign="right"
-                  textStyle={{ paddingVertical: 6 }}
-                  onChangeText={(text) => setSelectedHour(text)}
-                />
-                <Button backgroundColor="#3770B4" onPress={enterWaitingList}>
-                  לרשימת המתנה
-                </Button>
-              </Modal.Body>
-            </Modal.Content>
-          </Modal>
-        </View>
-        <BottomSheetModal
-          ref={bottomSheetModalRef}
-          index={1}
-          snapPoints={snapPoints}
-          onChange={handleSheetChanges}
-        >
-          <View style={styles.contentContainer}>
-            <Heading style={{fontFamily: "Arial Hebrew"}}>פרטי הזמנת תור</Heading>
-            <Text style={styles.modalText}>טיפול: {treatmentName}</Text>
-            <Text style={styles.modalText}>עובד: {employeeName}</Text>
-            <Text style={styles.modalText}>
-              תאריך: {new Date(date).toLocaleDateString()}
-            </Text>
-            <Text style={styles.modalText}>שעה: {hour}</Text>
-            <Button backgroundColor="#3770B4" onPress={() => orderQueue(hour)}>
-              לחץ כאן לאישור
-            </Button>
+            )}
           </View>
-        </BottomSheetModal>
-      </View>
-    </BottomSheetModalProvider>
+          <View style={{ position: "relative", alignSelf: "center" }}>
+            <Text
+              style={{
+                alignSelf: "center",
+                marginTop: 35,
+                marginBottom: 10,
+                fontFamily: "Arial Hebrew",
+              }}
+            >
+              אין תור פנוי?
+            </Text>
+            <Button
+              alignSelf="center"
+              backgroundColor="#3770B4"
+              onPress={() => setModalVisible(true)}
+            >
+              לחץ כאן לרשימת המתנה
+            </Button>
+            <Modal
+              backdropVisible={false}
+              isOpen={modalVisible}
+              avoidKeyboard
+              justifyContent="center"
+              size="lg"
+            >
+              <Modal.Content
+                borderWidth={1}
+                borderColor="#CDCDCD"
+                backgroundColor="white"
+                width="70%"
+              >
+                <Modal.CloseButton onPress={() => setModalVisible(false)} />
+                <Modal.Header
+                  alignSelf="center"
+                  backgroundColor="white"
+                  width="100%"
+                  alignItems="center"
+                >
+                  בחר תאריך ושעה
+                </Modal.Header>
+                <Modal.Body style={{ gap: 10 }}>
+                  <Datepicker
+                    placeholder="תאריך"
+                    onSelect={(date) => setDate(date)}
+                    accessoryLeft={(props) => (
+                      <Icon {...props} name="calendar" />
+                    )}
+                    controlStyle={{ paddingVertical: 10 }}
+                    date={date}
+                  />
+                  <Input
+                    placeholder="שעה"
+                    accessoryLeft={(props) => (
+                      <Icon {...props} name="clock-outline" />
+                    )}
+                    textAlign="right"
+                    textStyle={{ paddingVertical: 6 }}
+                    onChangeText={(text) => setSelectedHour(text)}
+                  />
+                  <Button backgroundColor="#3770B4" onPress={enterWaitingList}>
+                    לרשימת המתנה
+                  </Button>
+                </Modal.Body>
+              </Modal.Content>
+            </Modal>
+          </View>
+          <BottomSheetModal
+            ref={bottomSheetModalRef}
+            index={1}
+            snapPoints={snapPoints}
+            onChange={handleSheetChanges}
+          >
+            <View style={styles.contentContainer}>
+              <Heading style={{ fontFamily: "Arial Hebrew" }}>
+                פרטי הזמנת תור
+              </Heading>
+              <Text style={styles.modalText}>טיפול: {treatmentName}</Text>
+              <Text style={styles.modalText}>עובד: {employeeName}</Text>
+              <Text style={styles.modalText}>
+                תאריך: {new Date(date).toLocaleDateString()}
+              </Text>
+              <Text style={styles.modalText}>שעה: {hour}</Text>
+              <Button
+                backgroundColor="#3770B4"
+                onPress={() => orderQueue(hour)}
+              >
+                לחץ כאן לאישור
+              </Button>
+            </View>
+          </BottomSheetModal>
+        </View>
+      </BottomSheetModalProvider>
     </ScrollView>
   );
 };
@@ -374,21 +447,21 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     backgroundColor: "#f8f8f8",
-    padding: 15
+    padding: 15,
   },
   title: {
     fontSize: 30,
     fontWeight: "bold",
     alignSelf: "center",
     marginBottom: 30,
-    fontFamily: "Arial Hebrew"
+    fontFamily: "Arial Hebrew",
   },
   text: {
     alignSelf: "flex-end",
     marginBottom: 10,
     fontSize: 18,
     marginRight: 10,
-    fontFamily: "Arial Hebrew"
+    fontFamily: "Arial Hebrew",
   },
   container: {
     flex: 1,
@@ -405,7 +478,7 @@ const styles = StyleSheet.create({
   modalText: {
     fontSize: 20,
     fontWeight: 300,
-    fontFamily: "Arial Hebrew"
+    fontFamily: "Arial Hebrew",
   },
   dropdown: {
     height: 50,
@@ -422,7 +495,7 @@ const styles = StyleSheet.create({
   },
   selectedTextStyle: {
     fontSize: 16,
-    fontFamily: "Arial Hebrew"
+    fontFamily: "Arial Hebrew",
   },
   placeholderStyle: {
     fontSize: 16,

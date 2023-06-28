@@ -85,6 +85,7 @@ const SignUpScreen = () => {
   const saveUserLoggedIn = async () => {
     if (isChecked) {
       await AsyncStorage.setItem("phoneNum", JSON.stringify(phoneNum));
+      await AsyncStorage.setItem("hairSalonId", JSON.stringify(selectedHairSalon.value));
       await AsyncStorage.setItem("keepLoggedIn", JSON.stringify(true));
     }
   };
