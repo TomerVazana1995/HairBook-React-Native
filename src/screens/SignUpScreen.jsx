@@ -111,7 +111,7 @@ const SignUpScreen = () => {
   //save the new user information in the database
   const CreateUser = async () => {
     axios
-      .post(`${baseUrl}/Client`, {
+      .post(`${baseUrl}/Client?hairSalonId=${selectedHairSalon.value}`, {
         firstName: userContext.user.firstName,
         lastName: userContext.user.lastName,
         phoneNum: phoneNum,
@@ -121,9 +121,7 @@ const SignUpScreen = () => {
         hairSalonId: selectedHairSalon.value,
         token: expoPushToken,
       })
-      .then(function (response) {
-        console.log(response.data);
-        alert("user added");
+      .then(function () {
         userContext.setIsLoggedIn(true);
       })
       .catch(function (error) {
@@ -139,7 +137,6 @@ const SignUpScreen = () => {
       response.data.map((hairSalon) => {
         data.push({ lable: hairSalon.salonName, value: hairSalon.id });
       });
-      console.log(hairSalons);
     } catch (error) {
       console.log(error);
     }
@@ -202,6 +199,7 @@ const SignUpScreen = () => {
                   userContext.setUser({ ...userContext.user, birthDate: date })
                 }
                 accessoryLeft={(props) => <Icon {...props} name="calendar" />}
+                min={new Date(1900, 1, 1)}
               />
               <Input
                 value={phoneNum}

@@ -4,6 +4,7 @@ import axios from "axios";
 import { UserContext } from "../context/context";
 import { Button } from "native-base";
 import { useNavigation } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -12,14 +13,15 @@ const BookingComponent = ({ future }) => {
 
   const [queues, setQueues] = useState([]);
   const [futureQueues, setFutureQueues] = useState([]);
-  const [isFuture, setIsFuture] = useState(true);
+
+  const isFocused = useIsFocused()
 
   const navigation = useNavigation();
 
   useEffect(() => {
     getAllFutureQueues();
     getAllQueues();
-  }, []);
+  }, [isFocused]);
 
   const getAllQueues = async () => {
     try {
@@ -40,7 +42,7 @@ const BookingComponent = ({ future }) => {
         };
       });
 
-      setQueues(response.data);
+      setQueues(formattedQueues);
     } catch (error) {
       console.log("couldnt find client queues", error);
     }

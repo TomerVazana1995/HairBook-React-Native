@@ -4,6 +4,7 @@ import axios from "axios";
 import { UserContext } from "../context/context";
 import { useNavigation } from "@react-navigation/native";
 import { Button } from "native-base";
+import { useIsFocused } from "@react-navigation/native";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -12,12 +13,14 @@ const OrdersComponent = ({ future = false }) => {
   const [futureOrders, setFutureOrders] = useState([]);
   const { user } = useContext(UserContext);
 
+  const isFocused = useIsFocused()
+
   const navigation = useNavigation();
 
   useEffect(() => {
     getAllOrderedProducts();
     getFutureOrders();
-  }, []);
+  }, [isFocused]);
 
   const getAllOrderedProducts = async () => {
     try {
@@ -25,7 +28,7 @@ const OrdersComponent = ({ future = false }) => {
         `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=1`
       );
       console.log("all", response.data);
-      setAllOrders([]);
+      setAllOrders(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -37,7 +40,7 @@ const OrdersComponent = ({ future = false }) => {
         `${baseUrl}/Product/GetOrderedProdByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
       );
       console.log("future", response.data);
-      setFutureOrders([]);
+      setFutureOrders(response.data);
     } catch (error) {
       console.log(error);
     }

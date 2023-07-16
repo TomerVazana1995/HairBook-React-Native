@@ -120,7 +120,6 @@ export default function App() {
     setTimeout(() => setIsLoading(false), 1500);
     getUserCredentials()
       .then(function (data) {
-        console.log("data", data);
         if (data) {
           axios
             .get(`${baseUrl}/Client/${data[0]}/${data[1]}`)
@@ -158,7 +157,6 @@ export default function App() {
       .catch(function (error) {
         console.log(error);
       })
-      .finally(() => console.log("user: ",user));
   }, []);
 
   useLayoutEffect(() => {

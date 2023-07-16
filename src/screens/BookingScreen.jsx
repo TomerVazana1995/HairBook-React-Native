@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from "react-native";
 import React, {
   useState,
   useEffect,
@@ -10,7 +10,7 @@ import React, {
 import { Button, Heading, Modal } from "native-base";
 import BookingDetailsComponent from "../components/BookingDetailsComponent";
 import axios from "axios";
-import { useNavigation } from "@react-navigation/native";
+import Message from "../components/Message";
 import { UserContext } from "../context/context";
 import { DatePickerModal } from "react-native-paper-dates";
 import {
@@ -18,7 +18,8 @@ import {
   BottomSheetModalProvider,
 } from "@gorhom/bottom-sheet";
 import { Datepicker, Icon, Input } from "@ui-kitten/components/ui";
-import * as Calendar from "expo-calendar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -45,11 +46,21 @@ const BookingScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedHour, setSelectedHour] = useState(null);
 
-  const navigation = useNavigation();
+  const [showMessage, setShowMessage] = useState(false);
+
+  const [waitingList, setWaitingList] = useState(false);
 
   const bottomSheetModalRef = useRef(null);
 
   const { user } = useContext(UserContext);
+
+  const navigation = useNavigation();
+
+  const isFocused = useIsFocused()
+
+  useEffect(() => {
+    console.log(date);
+  }, [date]);
 
   const onDismissSingle = useCallback(() => {
     setOpenDateModal(false);
@@ -57,43 +68,135 @@ const BookingScreen = () => {
 
   const onConfirmSingle = useCallback(
     (params) => {
-      setOpenDateModal(false);
-      setDate(params.date);
-      setIsDatePicked(true);
-      console.log(params.date);
-      console.log("this is date:", date);
+      if(params.date < new Date())
+      {
+        Alert.alert("בחירת תאריך", "התאריך שבחרת אינו תקין נא נסה שנית", [
+          {
+            text: 'אישור'
+          }
+        ])
+      }
+      else{
+        setOpenDateModal(false);
+        setDate(params.date);
+        setIsDatePicked(true);
+        setWaitingList(true);
+      }
     },
     [setOpenDateModal, setDate, setIsDatePicked]
   );
 
   useEffect(() => {
     getServicesInfo();
-  }, []);
+    checkFirstTime();
+  }, [isFocused]);
 
   useEffect(() => {
     getDateHours();
-  }, [employee]);
+  }, [date]);
 
-  function disabledDatesModal() {
-    const date = new Date();
-    const vacationDay = [];
-    for (let index = 0; index < 7; index++) {
-      if (date.getDate === 2) {
-        for (let index = 0; index < 12; index++) {
-          console.log(index);
-          vacationDay.push(date);
-          date.setDate(date + 7);
-        }
+  function getNext12MonthsTuesdays() {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    const tuesdays = [];
+
+    let month = currentMonth;
+    let year = currentYear;
+
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(year, month, 1);
+      while (date.getDay() !== 2) {
+        date.setDate(date.getDate() + 1);
+      }
+      while (date.getMonth() === month) {
+        tuesdays.push(new Date(date.getTime()));
+        date.setDate(date.getDate() + 7);
+      }
+
+      // Move to the next month and adjust the year if necessary
+      month++;
+      if (month > 11) {
+        month = 0;
+        year++;
       }
     }
-    return vacationDay;
+
+    return tuesdays;
   }
+
+  const futureTuesdays = getNext12MonthsTuesdays();
+
+  function getNext12MonthsFridays() {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    const fridays = [];
+
+    let month = currentMonth;
+    let year = currentYear;
+
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(year, month, 1);
+      while (date.getDay() !== 5) {
+        date.setDate(date.getDate() + 1);
+      }
+      while (date.getMonth() === month) {
+        fridays.push(new Date(date.getTime()));
+        date.setDate(date.getDate() + 7);
+      }
+
+      // Move to the next month and adjust the year if necessary
+      month++;
+      if (month > 11) {
+        month = 0;
+        year++;
+      }
+    }
+
+    return fridays;
+  }
+
+  const futureFridays = getNext12MonthsFridays();
+
+  function getNext12MonthsSaturdays() {
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    const saturdays = [];
+
+    let month = currentMonth;
+    let year = currentYear;
+
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(year, month, 1);
+      while (date.getDay() !== 6) {
+        date.setDate(date.getDate() + 1);
+      }
+      while (date.getMonth() === month) {
+        saturdays.push(new Date(date.getTime()));
+        date.setDate(date.getDate() + 7);
+      }
+
+      // Move to the next month and adjust the year if necessary
+      month++;
+      if (month > 11) {
+        month = 0;
+        year++;
+      }
+    }
+
+    return saturdays;
+  }
+
+  const futureSaturdays = getNext12MonthsSaturdays();
+
+  const allDates = [...futureTuesdays, ...futureFridays, ...futureSaturdays];
 
   const getServicesInfo = () => {
     axios
       .get(`${baseUrl}/Service?hairSalonId=${user.hairSalonId}`)
       .then((response) => {
-        console.log(response.data);
         setServices(response.data);
       })
       .catch((error) => {
@@ -103,8 +206,10 @@ const BookingScreen = () => {
 
   const getDateHours = async () => {
     try {
+      var day = date;
+      day = day.toDateString();
       const response = await axios.get(
-        `${baseUrl}/Queue/GetAvailableTimes?serviceNum=${treatment}&phoneNum=${employee.phoneNum}&Date=${date}&hairSalonId=${user.hairSalonId}`
+        `${baseUrl}/Queue/GetAvailableTimes?serviceNum=${treatment}&phoneNum=${employee.phoneNum}&Date=${day}&hairSalonId=${user.hairSalonId}`
       );
       setHours(response.data);
       response.data.map((item, index) => {
@@ -137,7 +242,6 @@ const BookingScreen = () => {
       const response = await axios.get(
         `${baseUrl}/Employee/GetDatesByEmployee?EmpPhone=${employee.phoneNum}&hairSalonId=${user.hairSalonId}`
       );
-      console.log(response.data);
     } catch (error) {
       console.log("we have an error here", error);
     } finally {
@@ -157,105 +261,82 @@ const BookingScreen = () => {
     console.log("handleSheetChanges", index);
   }, []);
 
-  async function getDefaultCalendarSource() {
-    const defaultCalendar = await Calendar.getDefaultCalendarAsync();
-    return defaultCalendar.source;
-  }
-
-  async function createCalendar() {
-    const defaultCalendarSource =
-      Platform.OS === "ios"
-        ? await getDefaultCalendarSource()
-        : { isLocalAccount: true, name: "Expo Calendar" };
-    const newCalendarID = await Calendar.createCalendarAsync({
-      title: "Expo Calendar",
-      color: "blue",
-      entityType: Calendar.EntityTypes.EVENT,
-      sourceId: defaultCalendarSource.id,
-      source: defaultCalendarSource,
-      name: "internalCalendarName",
-      ownerAccount: "personal",
-      accessLevel: Calendar.CalendarAccessLevel.OWNER,
-      isVisible: true,
-    });
-    console.log(`Your new calendar ID is: ${newCalendarID}`);
-    return newCalendarID;
-  }
-
-  async function openCalendarEvent(eventId) {
-    try {
-      const eventInCalendar = await Calendar.getEventAsync(eventId);
-      if (eventInCalendar) {
-        Calendar.openEventInCalendar(eventInCalendar.id);
-        console(eventInCalendar.id);
-      } else {
-        console.log("Event not found in the calendar");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   const orderQueue = async (hour) => {
     axios
-      .post(`${baseUrl}/Queue/OrderQueue?hairSalonId=${user.hairSalonId}`, {
-        date: date,
-        time: hour,
-        empPhone: employee.phoneNum,
-        clientPhone: user.phoneNum,
-        serviceNum: treatment,
-      })
-      .then((response) => {
-        console.log(response);
-        Alert.alert("הזמנת תור");
+      .post(
+        `${baseUrl}/Queue/OrderQueue?hairSalonId=${user.hairSalonId}&flag=0`,
+        {
+          date: date,
+          time: hour,
+          empPhone: employee.phoneNum,
+          clientPhone: user.phoneNum,
+          serviceNum: treatment,
+          token: "",
+        }
+      )
+      .then(() => {
+        Alert.alert("הזמנת תור", "התור הוזמן בהצלחה!", [
+          {
+            text: "אישור",
+            onPress: () => {
+              navigation.navigate("דף הבית");
+            },
+          },
+        ]);
       })
       .catch((error) => console.log(error));
-    (async () => {
-      const { status } = await Calendar.requestCalendarPermissionsAsync();
-      if (status === "granted") {
-        const calendars = await Calendar.getCalendarsAsync(
-          Calendar.EntityTypes.EVENT
-        );
-        console.log("Here are all your calendars:");
-        console.log({ calendars });
-      }
-    })();
-    try {
-      const calendarId = await createCalendar();
-      const eventId = await Calendar.createEventAsync(calendarId);
-      openCalendarEvent(eventId);
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const enterWaitingList = async () => {
     try {
-      if (true) {
-        const response = await axios.post(
-          `https://proj.ruppin.ac.il/cgroup30/prod/PostIntoWaiting?hairSalonId=${user.hairSalonId}`,
-          {
-            date: date,
-            time: selectedHour,
-            empPhone: employee.phoneNum,
-            clientPhone: user.phoneNum,
-            serviceNum: treatment,
-          }
-        );
-        console.log(response.data);
-        alert(`מקומך בתור הוא ${response.data}`);
-      } else {
-        alert("נא לבחור תאריך ושעה");
-      }
+      const response = await axios.post(
+        `https://proj.ruppin.ac.il/cgroup30/prod/PostIntoWaiting?hairSalonId=${user.hairSalonId}`,
+        {
+          date: date,
+          time: selectedHour,
+          empPhone: employee.phoneNum,
+          clientphone: user.phoneNum,
+          serviceNum: treatment,
+          token: "",
+        }
+      );
+      Alert.alert("רשימת המתנה", `מקומך בתור הוא ${response.data}`, [
+        {
+          text: "אישור",
+          onPress: () => setModalVisible(false),
+        },
+      ]);
     } catch (error) {
       console.log(error);
     }
   };
+
+  async function checkFirstTime() {
+    try {
+      const check = await AsyncStorage.getItem("booking");
+      const flag = JSON.parse(check);
+      console.log(flag);
+      if ((flag === null) | undefined) {
+        setShowMessage(true);
+        await AsyncStorage.setItem("booking", JSON.stringify(true));
+      }
+    } catch (error) {
+      console.log(`error: ${error}`);
+    }
+  }
 
   return (
     <ScrollView style={{ backgroundColor: "#f8f8f8" }}>
       <BottomSheetModalProvider>
         <View style={[styles.root]}>
+          {showMessage && (
+            <Message
+              title="קביעת תור "
+              text="במסך זה אתה יכול להזמין תור לפי תאריך וטיפול שאתה מעוניין בו. 
+          במקרה ואין תור פנוי ניתן להירשם לרשימת המתנה למטה 👇🏻."
+              onPress={() => setShowMessage(false)}
+            />
+          )}
           <View>
             <Text style={styles.title}>הזמנת תור</Text>
             <Text style={styles.text}>סוג טיפול</Text>
@@ -315,13 +396,14 @@ const BookingScreen = () => {
                     date={date}
                     onConfirm={onConfirmSingle}
                     validRange={{
-                      disabledDates: disabledDatesModal(),
+                      disabledDates: allDates,
                     }}
                   />
-                  <BookingDetailsComponent
-                    text={`${new Date(date).toLocaleDateString()}`}
-                    onPress={() => setOpenDateModal(true)}
-                  />
+                  <TouchableOpacity onPress={() => setOpenDateModal(true)}>
+                    <View style={styles.container}>
+                      <Text style={styles.dateText}>{new Date(date).toLocaleDateString()}</Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}
@@ -346,72 +428,78 @@ const BookingScreen = () => {
               </View>
             )}
           </View>
-          <View style={{ position: "relative", alignSelf: "center" }}>
-            <Text
-              style={{
-                alignSelf: "center",
-                marginTop: 35,
-                marginBottom: 10,
-                fontFamily: "Arial Hebrew",
-              }}
-            >
-              אין תור פנוי?
-            </Text>
-            <Button
-              alignSelf="center"
-              backgroundColor="#3770B4"
-              onPress={() => setModalVisible(true)}
-            >
-              לחץ כאן לרשימת המתנה
-            </Button>
-            <Modal
-              backdropVisible={false}
-              isOpen={modalVisible}
-              avoidKeyboard
-              justifyContent="center"
-              size="lg"
-            >
-              <Modal.Content
-                borderWidth={1}
-                borderColor="#CDCDCD"
-                backgroundColor="white"
-                width="70%"
+          {waitingList && (
+            <View style={{ position: "relative", alignSelf: "center" }}>
+              <Text
+                style={{
+                  alignSelf: "center",
+                  marginTop: 35,
+                  marginBottom: 10,
+                  fontFamily: "Arial Hebrew",
+                }}
               >
-                <Modal.CloseButton onPress={() => setModalVisible(false)} />
-                <Modal.Header
-                  alignSelf="center"
+                אין תור פנוי?
+              </Text>
+              <Button
+                alignSelf="center"
+                backgroundColor="#3770B4"
+                onPress={() => setModalVisible(true)}
+              >
+                לחץ כאן לרשימת המתנה
+              </Button>
+              <Modal
+                backdropVisible={false}
+                isOpen={modalVisible}
+                avoidKeyboard
+                justifyContent="center"
+                size="lg"
+              >
+                <Modal.Content
+                  borderWidth={1}
+                  borderColor="#CDCDCD"
                   backgroundColor="white"
-                  width="100%"
-                  alignItems="center"
+                  width="70%"
                 >
-                  בחר תאריך ושעה
-                </Modal.Header>
-                <Modal.Body style={{ gap: 10 }}>
-                  <Datepicker
-                    placeholder="תאריך"
-                    onSelect={(date) => setDate(date)}
-                    accessoryLeft={(props) => (
-                      <Icon {...props} name="calendar" />
-                    )}
-                    controlStyle={{ paddingVertical: 10 }}
-                    date={date}
-                  />
-                  <Input
-                    placeholder="שעה"
-                    accessoryLeft={(props) => (
-                      <Icon {...props} name="clock-outline" />
-                    )}
-                    textAlign="right"
-                    textStyle={{ paddingVertical: 6 }}
-                    onChangeText={(text) => setSelectedHour(text)}
-                  />
-                  <Button backgroundColor="#3770B4" onPress={enterWaitingList}>
-                    לרשימת המתנה
-                  </Button>
-                </Modal.Body>
-              </Modal.Content>
-            </Modal>
-          </View>
+                  <Modal.CloseButton onPress={() => setModalVisible(false)} />
+                  <Modal.Header
+                    alignSelf="center"
+                    backgroundColor="white"
+                    width="100%"
+                    alignItems="center"
+                  >
+                    בחר תאריך ושעה
+                  </Modal.Header>
+                  <Modal.Body style={{ gap: 10 }}>
+                    <Datepicker
+                      placeholder="תאריך"
+                      onSelect={(date) => setDate(date)}
+                      accessoryLeft={(props) => (
+                        <Icon {...props} name="calendar" />
+                      )}
+                      controlStyle={{ paddingVertical: 10 }}
+                      date={date}
+                      min={new Date()}
+                    />
+                    <Input
+                      placeholder="שעה"
+                      accessoryLeft={(props) => (
+                        <Icon {...props} name="clock-outline" />
+                      )}
+                      textAlign="right"
+                      textStyle={{ paddingVertical: 6 }}
+                      onChangeText={(text) => setSelectedHour(text)}
+                    />
+                    <Button
+                      backgroundColor="#3770B4"
+                      onPress={enterWaitingList}
+                    >
+                      לרשימת המתנה
+                    </Button>
+                  </Modal.Body>
+                </Modal.Content>
+              </Modal>
+            </View>
+          )}
           <BottomSheetModal
             ref={bottomSheetModalRef}
             index={1}
@@ -503,6 +591,26 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
   },
+  container: {
+    borderWidth: 1,
+    borderWidth: 1,
+    borderColor: "#CDCDCD", 
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: '#171717',
+    shadowOffset: {width: -2, height: 4},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    backgroundColor: "#d4ffc7",
+    margin: 10,
+    elevation: 5,
+    width: 100,
+    alignItems: "center",
+  },
+  dateText: {
+    fontFamily: "Arial Hebrew",
+    fontSize: 15,
+  }
 });
 
 export default BookingScreen;

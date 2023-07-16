@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import axios from "axios";
 import { UserContext } from "../context/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -18,13 +19,15 @@ const BusinessDetailsScreen = () => {
 
   const navigation = useNavigation();
 
+  const isFocused = useIsFocused()
+
   useEffect(() => {
     getBuisinessDetails();
     const flag = checkIfFirstTime()
     if(flag){
       setIsFirstTime(true)
     }
-  }, []);
+  }, [isFocused]);
 
   const getBuisinessDetails = () => {
     //the business details
@@ -38,9 +41,6 @@ const BusinessDetailsScreen = () => {
       .catch((error) => {
         console.log(error);
       })
-      .finally(() => {
-        console.log("buisiness details:", details);
-      });
 
     //the business work time
     axios
@@ -91,13 +91,6 @@ const BusinessDetailsScreen = () => {
     }
   }
 
-  async function setFirstTime(){
-    try {
-      await AsyncStorage.setItem("isLoggedInBefore", JSON.stringify(true))      
-    } catch (error) {
-      console.log(`error: ${error}`)
-    }
-  }
 
   return (
     <View style={styles.root}>

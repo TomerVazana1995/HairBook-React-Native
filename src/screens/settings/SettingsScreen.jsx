@@ -1,29 +1,24 @@
 import { View, Text, StyleSheet } from "react-native";
 import React, { useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Heading, Avatar } from "native-base";
-import CustomButton from "../../components/CustomButton";
+import { Avatar } from "native-base";
 import SettingsOption from "../../components/SettingsOption";
 import { UserContext } from "../../context/context";
-import axios from "axios";
 import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect } from "react";
 
 const SettingsScreen = () => {
   const userContext = useContext(UserContext);
-  const navigation = useNavigation();
-
 
   const logOut = () => {
-    Alert.alert("Alert Title", "My Alert Msg", [
+    Alert.alert("התנתקות", "אתה בטוח שאתה רוצה להתנתק?", [
       {
-        text: "Cancel",
+        text: "ביטול",
         onPress: () => console.log("Cancel Pressed"),
         style: "cancel",
       },
       {
-        text: "OK",
+        text: "אישור",
         onPress: () => {
           {
             AsyncStorage.removeItem("keepLoggedIn"),

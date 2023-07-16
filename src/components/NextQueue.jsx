@@ -1,10 +1,9 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Alert } from "react-native";
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { UserContext } from "../context/context";
 import { useIsFocused } from "@react-navigation/native";
 import { Button } from "native-base";
-import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -27,7 +26,6 @@ const NextQueue = () => {
         `${baseUrl}/Queue/GetQueuesByClient?hairSalonId=${user.hairSalonId}&phoneNum=${user.phoneNum}&flag=0`
       );
       if (response) {
-        console.log(response.data);
         const queueDate = new Date(response.data[0].date);
         setDate(queueDate.toLocaleDateString()),
           setTime(response.data[0].startTime.slice(0, 5));
@@ -39,15 +37,37 @@ const NextQueue = () => {
     }
   };
 
-
   async function deleteNextQueue(){
     try {
       const response = await axios.delete(`${baseUrl}/Queue/DeleteQueue?queueNum=${queueNum}&hairSalonId=${user.hairSalonId}`)
       console.log(response)
+      if(response.status === 200){
+        setShowNextQueue(false);
+      }
     } catch (error) {
       console.log(error)
     }
   }
+
+
+  async function confirmDelete(){
+    try {
+      Alert.alert("מחיקת תור", "אתה בטוח שאתה רוצה למחוק את התור?", [
+        {
+          text: 'ביטול',
+          onPress: () => console.log('cancle queue'),
+          style: 'cancle'
+        },
+        {
+          text: 'אישור',
+          onPress: () => deleteNextQueue(),
+        }
+      ])
+    } catch (error) {
+      
+    }
+  }
+
 
   if (showNextQueue) {
     return (
@@ -59,7 +79,7 @@ const NextQueue = () => {
         </View>
         <View>
        <Text>לחץ כאן לביטול התור</Text>
-        <Button rounded="2xl" variant="outline" fontSize="3xl" padding={1} margin={0} onPress={deleteNextQueue} size="md">ביטול</Button>
+        <Button rounded="2xl" variant="outline" fontSize="3xl" padding={1} margin={0} onPress={confirmDelete} size="md">ביטול</Button>
         </View>
       </View>
     );

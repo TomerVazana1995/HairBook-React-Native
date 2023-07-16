@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Modal, Button } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
-import { Datepicker, Layout } from "@ui-kitten/components";
+import { Datepicker} from "@ui-kitten/components";
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
@@ -15,7 +15,6 @@ const ProductCard = ({
   index,
   amount,
   onPress,
-  Liked,
   trash,
   onPressDelete,
   onSelectDate,
@@ -27,16 +26,11 @@ const ProductCard = ({
   onPressOrder,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  // const [selectedProduct, setSelectedProduct] = useState("");
-  const [productAmount, setProductAmount] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [datePick, setDatePick] = useState(new Date());
+
 
   function closeModal() {
     setModalVisible(false);
   }
-
-  //צריך להוסיף צבע אדום לאייקון לאחר שמשתמש אהב את המוצר, לבדוק אם המוצר קיים בזיכרון הלוקלי אם כן לרנדר את האייקון בצבע אדום לפני
 
   return (
     <View style={styles.root}>
@@ -48,11 +42,7 @@ const ProductCard = ({
         }}
       >
         <TouchableOpacity onPress={onPress}>
-          {Liked ? (
             <AntDesign name="heart" size={15} color="red" />
-          ) : (
-            <AntDesign name="hearto" size={15} />
-          )}
         </TouchableOpacity>
         <TouchableOpacity onPress={onPressDelete}>
           {trash ? <Entypo name="trash" size={15} /> : null}
@@ -174,7 +164,7 @@ const ProductCard = ({
                 </TouchableOpacity>
               </View>
               <Text style={{fontFamily: "Arial Hebrew", paddingBottom: 10, color: "#78807a"}}>בחר תאריך לאיסוף המוצר</Text>
-              <Datepicker date={pickUpDate} onSelect={onSelectDate} />
+              <Datepicker min={new Date()} date={pickUpDate} onSelect={onSelectDate} />
             </Modal.Body>
             <Modal.Footer justifyContent="center">
               <Button bgColor="#3770B4" width="80%" onPress={onPressOrder}>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE, Callout } from "react-native-maps";
 import {
   StyleSheet,
   View,
@@ -26,8 +26,8 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 INITIAL_POSITION = {
   latitude: 32.176629,
   longitude: 34.901105,
-  latitudeDelta: 0.005,
-  longitudeDelta: 0.005,
+  latitudeDelta: 0.02,
+  longitudeDelta: 0.02,
 };
 
 const edgePaddingValue = 70;

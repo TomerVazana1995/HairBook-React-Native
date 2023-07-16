@@ -3,18 +3,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  LogBox,
   Switch,
 } from "react-native";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState} from "react";
 import BookingComponent from "../components/BookingComponent";
 import { HStack } from "native-base";
-import { Button } from "native-base";
-import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
-import { UserContext } from "../context/context";
-
-const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
 const MyBookingsScreen = () => {
   const [future, setFuture] = useState(true);

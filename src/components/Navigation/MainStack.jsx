@@ -12,7 +12,6 @@ import ShopScreen from "../../screens/ShopScreen";
 import OurTeamScreen from "../../screens/OurTeamScreen";
 import BookingScreen from "../../screens/BookingScreen";
 import HairBookLogo from "../HairBookLogo";
-import PersonalDetailsScreen from "../../screens/settings/PersonalDetailsScreen";
 import {
   Ionicons,
   FontAwesome5,
@@ -39,11 +38,6 @@ const MainStack = () => {
           name="settings"
           component={SettingsScreen}
           options={{ title: "הגדרות" }}
-        />
-        <Stack.Screen
-          name="PersonalDetails screen"
-          component={PersonalDetailsScreen}
-          options={{ title: "פרטים אישיים" }}
         />
       </Stack.Navigator>
     );

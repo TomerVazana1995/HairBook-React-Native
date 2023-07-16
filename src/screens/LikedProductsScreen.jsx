@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useContext, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import ProductCard from "../components/ProductCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
@@ -52,6 +52,7 @@ const LikedProductsScreen = () => {
       if (result) {
         result = JSON.parse(result);
         setLikedProducts(result);
+        setFilteredProducts(result)
         setProductsExists(true);
       }
     }).catch((error) => {
@@ -99,11 +100,9 @@ const LikedProductsScreen = () => {
                   image={{ uri: product.image }}
                   price={product.price}
                   date={product.date}
-                  onPressLike={() => {}}
                   name={product.productName}
                   description={product.description}
                   amount={product.amount}
-                  onPickDate={() => {}}
                   trash={true}
                   onPressDelete={() => handleDeleteProduct(product)}
                 />

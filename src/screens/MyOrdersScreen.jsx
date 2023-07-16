@@ -3,8 +3,6 @@ import React, { useState } from "react";
 import OrdersComponent from "../components/OrdersComponent";
 import { HStack } from "native-base";
 
-const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
-
 const MyOrdersScreen = () => {
   const [future, setFuture] = useState(true);
 

@@ -1,38 +1,15 @@
 import { View, Text, StyleSheet, Animated } from "react-native";
-import React, { useRef, useEffect, useState, useContext } from "react";
+import React, { useRef, useEffect} from "react";
 import { Avatar } from "native-base";
 import { TouchableOpacity } from "react-native";
-import axios from "axios";
-import { UserContext } from "../context/context";
 import { AntDesign } from "@expo/vector-icons";
-import StarRating from "react-native-star-rating-widget";
+
 
 const baseUrl = "https://proj.ruppin.ac.il/cgroup30/prod/api";
 
-const WorkerCard = () => {
+const WorkerCard = ({image, firstName, lastName, rank, onPress}) => {
   const animation = useRef(new Animated.Value(0)).current;
-  const [employees, setEmployees] = useState([]);
-  const [rating, setRating] = useState(0);
-
-  const { user } = useContext(UserContext);
-
-  const getAllEmployees = () => {
-    axios
-      .get(
-        `${baseUrl}/Employee/GetAllEmployees?hairSalonId=${user.hairSalonId}`
-      )
-      .then(function (response) {
-        console.log(response.data);
-        setEmployees(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  };
-
-  useEffect(() => {
-    getAllEmployees();
-  }, []);
+  
 
   useEffect(() => {
     Animated.timing(animation, {
@@ -54,18 +31,18 @@ const WorkerCard = () => {
 
   return (
     <>
-      {employees.map((employee, index) => (
-        <TouchableOpacity style={{ width: "70%" }} key={index}>
+     
+        <TouchableOpacity style={{ width: "70%" }} onPress={onPress}>
           <Animated.View
             style={[
               styles.container,
               { transform: [{ translateY: translateY }], opacity: opacity },
             ]}
           >
-            <Avatar source={{ uri: employee.image }} size="lg" marginLeft={5} />
+            <Avatar source={{ uri: image }} size="lg" marginLeft={5} />
             <View style={{ flex: 1, gap: 5 }}>
               <Text style={{ fontSize: 20, alignSelf: "center", fontFamily: "Arial Hebrew" }}>
-                {employee.firstName} {employee.lastName}
+                {firstName} {lastName}
               </Text>
               <View
                 style={{
@@ -75,14 +52,13 @@ const WorkerCard = () => {
                   alignItems: "center",
                 }}
               >
-                <Text style={{fontWeight: 400, fontFamily: "Arial Hebrew", fontSize: 20}}>{employee.rank}</Text>
+                <Text style={{fontWeight: 400, fontFamily: "Arial Hebrew", fontSize: 20}}>{rank}</Text>
                 <AntDesign name="star" color="#FFD400" />
               </View>
-              <StarRating rating={rating} onChange={setRating} starSize={20}/>
             </View>
           </Animated.View>
         </TouchableOpacity>
-      ))}
+     
     </>
   );
 };

@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert
 } from "react-native";
 import React, { useContext, useState, useEffect, useCallback } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -69,7 +70,6 @@ const LoginScreen = () => {
         `${baseUrl}/Client/GetCode?phoneNum=${phoneNum}&hairSalonId=1`
       )
       .then(function (response) {
-        console.log("your otp code", response.data);
         setOTPCode(response.data);
       })
       .catch(function (error) {
@@ -82,7 +82,6 @@ const LoginScreen = () => {
       .get(`${baseUrl}/Client/${phoneNum}/${selectedHairSalon.value}`)
       .then(function (response) {
         // handle success
-        console.log(response.data);
         if (response.data.phoneNum) {
           userContext.setIsLoggedIn(true);
           userContext.setUser({
@@ -95,7 +94,6 @@ const LoginScreen = () => {
             gender: response.data.gender,
             hairSalonId: response.data.hairSalonId,
           });
-          console.log();
         }
         saveUserLoggedIn();
       })
@@ -112,7 +110,6 @@ const LoginScreen = () => {
       response.data.map((hairSalon) => {
         data.push({ lable: hairSalon.salonName, value: hairSalon.id });
       });
-      console.log(hairSalons);
     } catch (error) {
       console.log(error);
     }
@@ -225,7 +222,11 @@ const LoginScreen = () => {
                       setDisabled(false);
                       setValidCode(true);
                     } else {
-                      alert("code is not valid");
+                      Alert.alert("קוד התחברות", "הקוד שהזנת אינו תקין, נא נסה שנית", [
+                        {
+                          text: "אישור"
+                        }
+                      ]);
                     }
                   }}
                   editable={true}
@@ -242,7 +243,7 @@ const LoginScreen = () => {
                   <CloseIcon size="10" mt="0.5" color="red" />
                 )}
                 לא קיבלת קוד אימות?
-                <Pressable>
+                <Pressable onPress={getOTPcode}>
                   <Text
                     style={{ textDecorationLine: "underline", color: "blue" }}
                   >
